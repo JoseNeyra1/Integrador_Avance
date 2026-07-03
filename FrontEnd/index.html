@@ -1,102 +1,297 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo - Tienda Flic's</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .card-img-top { height: 200px; object-fit: cover; background-color: #e9ecef; }
-    </style>
+    <title>Flics | Frescura y Conveniencia</title>
+    <meta name="description"
+        content="Flics Bodega - Tu tienda de conveniencia moderna. Productos frescos, snacks y bebidas cerca de ti, abierto 24/7.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body>
 
-    <nav class="navbar navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#">🛒 Tienda Flic's</a>
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="logo">Flics<span>.</span></a>
+            <ul class="nav-links">
+                <li><a href="#inicio">Inicio</a></li>
+                <li><a href="#categorias">Categorías</a></li>
+                <li><a href="#productos">Productos</a></li>
+                <li><a href="#ofertas">Ofertas</a></li>
+                <li><a href="#" id="nav-login-btn" class="btn-primary-outline"><i class="fas fa-user"></i> Iniciar Sesión</a></li>
+                <li>
+                    <a href="#" id="cart-icon" class="cart-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                </li>
+            </ul>
+            <div class="mobile-menu-btn">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
         </div>
     </nav>
 
-    <div class="container">
-        <h2 class="mb-4">Nuestro Catálogo</h2>
-        
-        <div class="row" id="contenedor-productos">
-            <div class="col-12 text-center" id="mensaje-carga">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Cargando...</span>
-                </div>
-                <p class="mt-2">Conectando con el servidor Spring Boot...</p>
+    <header id="inicio" class="hero">
+        <div class="hero-bg"></div>
+        <div class="container hero-content">
+            <h1 class="hero-title">Tu bodega del barrio,<br><span class="gradient-text">reinventada.</span></h1>
+            <p class="hero-subtitle">Encuentra productos frescos, bebidas frías y todo lo que necesitas para tu día, en un solo lugar y a la vuelta de la esquina.</p>
+            <div class="hero-buttons">
+                <a href="#categorias" class="btn-primary">Descubrir Productos</a>
+                <a href="#contacto" class="btn-secondary">Cómo Llegar</a>
             </div>
+        </div>
+    </header>
+
+    <section class="features">
+        <div class="container features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌿</div>
+                <h3>Frescura Diaria</h3>
+                <p>Frutas y verduras seleccionadas cada mañana para tu mesa.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⏱️</div>
+                <h3>Abierto 24/7</h3>
+                <p>Siempre disponibles para esos antojos de medianoche o emergencias.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🤝</div>
+                <h3>Productos Locales</h3>
+                <p>Apoyamos a productores de la zona para ofrecerte lo mejor y más cercano.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="categorias" class="categories">
+        <div class="container">
+            <h2 class="section-title">Nuestras Categorías</h2>
+            <div class="categories-grid">
+                <div class="category-card">
+                    <img src="https://i.dietdoctor.com/es/wp-content/uploads/2020/09/Fruits-and-vegetables-guide.jpg?auto=compress%2Cformat&w=1200&h=800&fit=crop"
+                        alt="Frutas y Verduras" class="category-img">
+                    <div class="category-content">
+                        <h3>Frutas & Verduras</h3>
+                        <a href="#" class="category-link">Ver más ➔</a>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1599490659213-e2b9527bb087?w=600"
+                        alt="Snacks" class="category-img">
+                    <div class="category-content">
+                        <h3>Snacks & Dulces</h3>
+                        <a href="#" class="category-link">Ver más ➔</a>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1527661591450-b2733b2fcb74?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                        alt="Bebidas" class="category-img">
+                    <div class="category-content">
+                        <h3>Bebidas Frías</h3>
+                        <a href="#" class="category-link">Ver más ➔</a>
+                    </div>
+                </div>
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
+                        alt="Abarrotes" class="category-img">
+                    <div class="category-content">
+                        <h3>Abarrotes</h3>
+                        <a href="#" class="category-link">Ver más ➔</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="productos" class="products">
+        <div class="container">
+            <h2 class="section-title">Productos Destacados</h2>
+            <div id="products-container" class="products-grid"></div>
+        </div>
+    </section>
+
+    <section id="ofertas" class="banner">
+        <div class="container banner-content">
+            <div class="banner-text">
+                <h2>Oferta Especial de la Semana</h2>
+                <p>Lleva 3 bebidas energéticas y paga solo 2. ¡Ideal para recargar energías!</p>
+                <a href="#" class="btn-primary">Aprovechar Oferta</a>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contacto" class="footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">Flics<span>.</span></a>
+                <p>La bodega moderna que reinventa la conveniencia en tu vecindario.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#categorias">Categorías</a></li>
+                    <li><a href="#ofertas">Ofertas</a></li>
+                    <li><a href="#" id="admin-login-btn">Acceso Admin</a></li>
+                </ul>
+            </div>
+            <div class="footer-contact">
+                <h4>Visítanos</h4>
+                <p>📍 Calle El Dorado, Acomayo 507, Parcona 11001, Ica</p>
+                <p>📞 (056) 211587</p>
+                <p>✉️ tienda@flicsbodega.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Flics Bodega. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <div id="cart-sidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>Tu Carrito</h2>
+            <button id="close-cart" class="close-cart"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="cart-items" class="cart-items"></div>
+        <div class="cart-footer">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cart-total-price">S/ 0.00</span>
+            </div>
+            <button id="checkout-btn" class="btn-primary w-100">Proceder al Pago</button>
+        </div>
+    </div>
+    <div id="cart-overlay" class="cart-overlay"></div>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <div id="admin-login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-login">&times;</span>
+            <h2>Iniciar Sesión</h2>
+            <div class="form-group">
+                <label>Correo / Usuario</label>
+                <input type="text" id="login-email" placeholder="correo@gmail.com ">
+                <label style="margin-top: 10px; display: block;">Contraseña</label>
+                <input type="password" id="login-password" placeholder="********">
+                <p id="login-error" class="error-msg" style="color: red; font-size: 13px; margin-top: 8px;"></p>
+            </div>
+            <button id="login-submit" class="btn-primary w-100" style="margin-top: 15px;">Ingresar</button>
         </div>
     </div>
 
-    <script>
-        // URL de tu API en Spring Boot
-        const API_URL = 'http://localhost:8080/api/productos';
+    <div id="admin-dashboard-modal" class="modal">
+        <div class="modal-content modal-lg">
+            <span class="close-modal" id="close-dashboard">&times;</span>
+            <h2>Panel de Administración</h2>
 
-        // Función principal para obtener y mostrar productos
-        async function cargarProductos() {
-            try {
-                // 1. Llamar al backend
-                const respuesta = await fetch(API_URL);
-                
-                // 2. Verificar si la respuesta es correcta
-                if (!respuesta.ok) {
-                    throw new Error('Error al conectar con el servidor');
-                }
+            <div class="admin-tabs">
+                <button class="admin-tab-btn active" data-tab="tab-productos">Productos</button>
+                <button class="admin-tab-btn" data-tab="tab-pedidos">Pedidos</button>
+                <button class="admin-tab-btn" data-tab="tab-graficos" id="btn-tab-charts">Gráficos</button>
+            </div>
 
-                // 3. Convertir la respuesta a JSON
-                const productos = await respuesta.json();
-                
-                // 4. Seleccionar el contenedor en el HTML
-                const contenedor = document.getElementById('contenedor-productos');
-                contenedor.innerHTML = ''; // Limpiar mensaje de carga
-
-                // 5. Recorrer el array de productos y crear el HTML para cada uno
-                productos.forEach(producto => {
-                    const tarjetaHTML = `
-                        <div class="col-md-4 col-sm-6 mb-4">
-                            <div class="card h-100 shadow-sm">
-                                <div class="card-img-top d-flex align-items-center justify-content-center text-muted">
-                                    <span>FOTO: ${producto.nombre}</span>
-                                </div>
-                                <div class="card-body">
-                                    <span class="badge bg-secondary mb-2">${producto.categoria.nombre}</span>
-                                    <h5 class="card-title">${producto.nombre}</h5>
-                                    <p class="card-text text-muted small">${producto.descripcion}</p>
-                                    <h4 class="text-success">S/ ${producto.precioVenta.toFixed(2)}</h4>
-                                    <p class="card-text mb-0"><small>Stock disponible: <strong>${producto.stock}</strong></small></p>
-                                </div>
-                                <div class="card-footer bg-white border-top-0">
-                                    <button class="btn btn-outline-primary w-100" onclick="agregarAlCarrito(${producto.idProducto})">
-                                        Agregar al carrito
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    // Insertar la tarjeta en el contenedor
-                    contenedor.innerHTML += tarjetaHTML;
-                });
-
-            } catch (error) {
-                console.error("Hubo un problema con la petición Fetch:", error);
-                document.getElementById('contenedor-productos').innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        No se pudo cargar el catálogo. Verifica que tu servidor Spring Boot esté encendido.
+            <div id="tab-productos" class="admin-tab-content active">
+                <div class="admin-sections">
+                    <div class="admin-products-list">
+                        <h3>Productos Actuales</h3>
+                        <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">Gestiona precios o elimina productos del inventario:</p>
+                        <div id="admin-products-container" class="admin-grid"></div>
                     </div>
-                `;
-            }
-        }
 
-        // Función simulada para el botón
-        function agregarAlCarrito(idProducto) {
-            alert("Producto ID " + idProducto + " listo para agregar al carrito local.");
-        }
+                    <div class="admin-add-product">
+                        <h3>Añadir Nuevo Producto</h3>
+                        <div class="form-group">
+                            <label for="new-name">Nombre</label>
+                            <input type="text" id="new-name" placeholder="Ej. Jugo de Naranja">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-category-select">Categoría</label>
+                            <select id="new-category-select"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-price">Precio (S/)</label>
+                            <input type="number" id="new-price" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-image">URL de Imagen</label>
+                            <input type="text" id="new-image" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-badge">Etiqueta (opcional)</label>
+                            <input type="text" id="new-badge" placeholder="Ej. Oferta">
+                        </div>
+                        <button id="add-product-btn" class="btn-primary w-100">Añadir Producto</button>
+                    </div>
+                </div>
+            </div>
 
-        // Ejecutar la función apenas cargue la página
-        document.addEventListener("DOMContentLoaded", cargarProductos);
-    </script>
+            <div id="tab-pedidos" class="admin-tab-content">
+                <div class="admin-orders-list">
+                    <h3>Pedidos Realizados</h3>
+                    <div id="admin-orders-container" class="admin-grid"></div>
+                </div>
+            </div>
+
+            <div id="tab-graficos" class="admin-tab-content">
+                <div class="charts-dashboard-grid">
+                    <div class="chart-box">
+                        <h4>Ventas por Categoría (Destacados)</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="chartProductos"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <h4>Ingresos Netos Totales (S/)</h4>
+                        <div class="chart-wrapper">
+                            <canvas id="chartDinero"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-box full-width">
+                        <h4>Embudo de Conversión (Visitas vs Compras Exitosas)</h4>
+                        <div class="chart-wrapper-large">
+                            <canvas id="chartUsuarios"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-payment">&times;</span>
+            <h2>Método de Pago</h2>
+            <p style="margin-bottom: 20px; text-align: center;">Seleccione cómo desea realizar el pago de su compra:</p>
+            <button id="pay-yape" class="btn-primary w-100" style="margin-bottom: 10px;">📱 Pagar con Yape</button>
+            <button id="pay-cash" class="btn-secondary w-100">💵 Pagar en Efectivo</button>
+        </div>
+    </div>
+
+    <div id="yape-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-yape">&times;</span>
+            <h2>Pago con Yape</h2>
+            <p style="text-align: center; margin: 20px 0;">Escanee o envíe el pago al número Yape corporativo:<br><strong style="font-size: 1.4rem; color: #742284;">999888777</strong></p>
+            <button id="confirm-yape" class="btn-primary w-100">Ya Realicé el Pago</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
+
 </html>
