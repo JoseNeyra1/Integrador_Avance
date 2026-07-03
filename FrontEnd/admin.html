@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control | Flics Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body style="background-color: #f1f5f9;">
+
+    <nav class="navbar" style="position: relative; margin-bottom: 30px;">
+        <div class="container nav-content">
+            <a href="#" class="logo">Flics<span> Admin.</span></a>
+            <ul class="nav-links">
+                <li><span id="admin-name-display" style="font-weight: 600; color: var(--primary-color);"></span></li>
+                <li><button id="btn-logout" class="btn-primary-outline" style="padding: 8px 15px;"><i class="fas fa-sign-out-alt"></i> Salir</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2 style="margin-bottom: 20px;">Panel de Administración</h2>
+
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="tab-productos">Gestión de Inventario</button>
+            <button class="admin-tab-btn" data-tab="tab-pedidos">Historial de Pedidos</button>
+            <button class="admin-tab-btn" data-tab="tab-graficos" id="btn-tab-charts">Métricas y Gráficos</button>
+        </div>
+
+        <div id="tab-productos" class="admin-tab-content active">
+            <div class="admin-sections">
+                <div class="admin-products-list">
+                    <h3>Catálogo Actual (MySQL)</h3>
+                    <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">Los precios e inventario se reflejan en tiempo real en la tienda.</p>
+                    <div id="admin-products-container" class="admin-grid">
+                        </div>
+                </div>
+
+                <div class="admin-add-product" style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; height: fit-content;">
+                    <h3>Añadir Nuevo Producto</h3>
+                    <div class="form-group">
+                        <label for="new-name">Nombre del Producto</label>
+                        <input type="text" id="new-name" placeholder="Ej. Jugo de Naranja">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-category-select">Categoría (ID)</label>
+                        <input type="number" id="new-category-select" placeholder="Ej. 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-price">Precio de Venta (S/)</label>
+                        <input type="number" id="new-price" placeholder="0.00" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-stock">Stock Inicial</label>
+                        <input type="number" id="new-stock" placeholder="Cantidad física en bodega">
+                    </div>
+                    <button id="add-product-btn" class="btn-primary w-100">Guardar en Base de Datos</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-pedidos" class="admin-tab-content">
+            <div class="admin-orders-list" style="background: white; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                <h3>Pedidos y Ventas Realizadas</h3>
+                <div id="admin-orders-container" class="admin-grid" style="margin-top: 15px;">
+                    </div>
+            </div>
+        </div>
+
+        <div id="tab-graficos" class="admin-tab-content">
+            <div class="charts-dashboard-grid">
+                <div class="chart-box">
+                    <h4>Distribución del Inventario</h4>
+                    <div class="chart-wrapper">
+                        <canvas id="chartProductos"></canvas>
+                    </div>
+                </div>
+                <div class="chart-box">
+                    <h4>Ingresos por Ventas (S/)</h4>
+                    <div class="chart-wrapper">
+                        <canvas id="chartDinero"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

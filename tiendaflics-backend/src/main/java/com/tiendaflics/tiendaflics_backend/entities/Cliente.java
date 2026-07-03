@@ -1,16 +1,34 @@
 package com.tiendaflics.tiendaflics_backend.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 
 @Entity
 @Table(name = "Cliente")
-@PrimaryKeyJoinColumn(name = "id_persona")
-public class Cliente extends Persona {
+public class Cliente {
+
+    @Id
+    @Column(name = "id_persona")
+    private Integer idPersona;
 
     @Column(name = "puntos_lealtad")
-    private Integer puntosLealtad = 0;
+    private Integer puntosLealtad;
 
-    public Cliente() {}
+    @Column(name = "password")
+    private String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Integer getIdPersona() { return idPersona; }
+    public void setIdPersona(Integer idPersona) { this.idPersona = idPersona; }
 
     public Integer getPuntosLealtad() { return puntosLealtad; }
     public void setPuntosLealtad(Integer puntosLealtad) { this.puntosLealtad = puntosLealtad; }

@@ -14,9 +14,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
@@ -28,7 +26,7 @@
                 <li><a href="#categorias">Categorías</a></li>
                 <li><a href="#productos">Productos</a></li>
                 <li><a href="#ofertas">Ofertas</a></li>
-                <li><a href="#" id="nav-login-btn" class="btn-primary-outline"><i class="fas fa-user"></i> Iniciar Sesión</a></li>
+                <li><a href="login-cliente.html" id="btn-nav-login" class="btn-primary-outline"><i class="fas fa-user"></i> Iniciar Sesión</a></li>
                 <li>
                     <a href="#" id="cart-icon" class="cart-icon">
                         <i class="fas fa-shopping-cart"></i>
@@ -145,7 +143,7 @@
                     <li><a href="#inicio">Inicio</a></li>
                     <li><a href="#categorias">Categorías</a></li>
                     <li><a href="#ofertas">Ofertas</a></li>
-                    <li><a href="#" id="admin-login-btn">Acceso Admin</a></li>
+                    <li><a href="login-personal.html">Acceso Admin</a></li>
                 </ul>
             </div>
             <div class="footer-contact">
@@ -176,102 +174,6 @@
     </div>
     <div id="cart-overlay" class="cart-overlay"></div>
 
-    <div id="toast-container" class="toast-container"></div>
-
-    <div id="admin-login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" id="close-login">&times;</span>
-            <h2>Iniciar Sesión</h2>
-            <div class="form-group">
-                <label>Correo / Usuario</label>
-                <input type="text" id="login-email" placeholder="correo@gmail.com ">
-                <label style="margin-top: 10px; display: block;">Contraseña</label>
-                <input type="password" id="login-password" placeholder="********">
-                <p id="login-error" class="error-msg" style="color: red; font-size: 13px; margin-top: 8px;"></p>
-            </div>
-            <button id="login-submit" class="btn-primary w-100" style="margin-top: 15px;">Ingresar</button>
-        </div>
-    </div>
-
-    <div id="admin-dashboard-modal" class="modal">
-        <div class="modal-content modal-lg">
-            <span class="close-modal" id="close-dashboard">&times;</span>
-            <h2>Panel de Administración</h2>
-
-            <div class="admin-tabs">
-                <button class="admin-tab-btn active" data-tab="tab-productos">Productos</button>
-                <button class="admin-tab-btn" data-tab="tab-pedidos">Pedidos</button>
-                <button class="admin-tab-btn" data-tab="tab-graficos" id="btn-tab-charts">Gráficos</button>
-            </div>
-
-            <div id="tab-productos" class="admin-tab-content active">
-                <div class="admin-sections">
-                    <div class="admin-products-list">
-                        <h3>Productos Actuales</h3>
-                        <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">Gestiona precios o elimina productos del inventario:</p>
-                        <div id="admin-products-container" class="admin-grid"></div>
-                    </div>
-
-                    <div class="admin-add-product">
-                        <h3>Añadir Nuevo Producto</h3>
-                        <div class="form-group">
-                            <label for="new-name">Nombre</label>
-                            <input type="text" id="new-name" placeholder="Ej. Jugo de Naranja">
-                        </div>
-                        <div class="form-group">
-                            <label for="new-category-select">Categoría</label>
-                            <select id="new-category-select"></select>
-                        </div>
-                        <div class="form-group">
-                            <label for="new-price">Precio (S/)</label>
-                            <input type="number" id="new-price" placeholder="0.00" step="0.01">
-                        </div>
-                        <div class="form-group">
-                            <label for="new-image">URL de Imagen</label>
-                            <input type="text" id="new-image" placeholder="https://...">
-                        </div>
-                        <div class="form-group">
-                            <label for="new-badge">Etiqueta (opcional)</label>
-                            <input type="text" id="new-badge" placeholder="Ej. Oferta">
-                        </div>
-                        <button id="add-product-btn" class="btn-primary w-100">Añadir Producto</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="tab-pedidos" class="admin-tab-content">
-                <div class="admin-orders-list">
-                    <h3>Pedidos Realizados</h3>
-                    <div id="admin-orders-container" class="admin-grid"></div>
-                </div>
-            </div>
-
-            <div id="tab-graficos" class="admin-tab-content">
-                <div class="charts-dashboard-grid">
-                    <div class="chart-box">
-                        <h4>Ventas por Categoría (Destacados)</h4>
-                        <div class="chart-wrapper">
-                            <canvas id="chartProductos"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-box">
-                        <h4>Ingresos Netos Totales (S/)</h4>
-                        <div class="chart-wrapper">
-                            <canvas id="chartDinero"></canvas>
-                        </div>
-                    </div>
-                    <div class="chart-box full-width">
-                        <h4>Embudo de Conversión (Visitas vs Compras Exitosas)</h4>
-                        <div class="chart-wrapper-large">
-                            <canvas id="chartUsuarios"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
     <div id="payment-modal" class="modal">
         <div class="modal-content">
             <span class="close-modal" id="close-payment">&times;</span>
@@ -291,7 +193,9 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script src="js/script.js"></script>
 </body>
 
 </html>

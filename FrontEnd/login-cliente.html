@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso de Clientes | Flics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e0f2fe 100%);
+        }
+        .auth-container {
+            background: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 450px;
+        }
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
+        .auth-tab.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            margin-bottom: -2px;
+        }
+        .auth-form {
+            display: none;
+        }
+        .auth-form.active {
+            display: block;
+        }
+        .logo-center {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo-center .logo {
+            font-size: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <div class="logo-center">
+            <a href="index.html" class="logo">Flics<span>.</span></a>
+        </div>
+
+        <div class="auth-tabs">
+            <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Iniciar Sesión</div>
+            <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Registrarse</div>
+        </div>
+
+        <div id="form-login" class="auth-form active">
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="login-email" placeholder="tu@correo.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="login-pass" placeholder="••••••••">
+            </div>
+            <p id="login-error" style="color: red; font-size: 13px; margin-bottom: 10px;"></p>
+            <button id="btn-login" class="btn-primary w-100">Ingresar</button>
+        </div>
+
+        <div id="form-register" class="auth-form">
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" id="reg-nombre" placeholder="Ej. Juan Pérez">
+            </div>
+            <div class="form-group">
+                <label>DNI / Documento</label>
+                <input type="text" id="reg-dni" placeholder="Número de documento">
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="reg-email" placeholder="tu@correo.com">
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="reg-pass" placeholder="Crea una contraseña">
+            </div>
+            <p id="reg-error" style="color: red; font-size: 13px; margin-bottom: 10px;"></p>
+            <button id="btn-register" class="btn-secondary w-100">Crear Cuenta</button>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="index.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">← Volver a la tienda</a>
+        </div>
+    </div>
+
+    <script>
+        // Lógica para cambiar entre pestañas
+        function switchTab(tab) {
+            document.getElementById('tab-login').classList.remove('active');
+            document.getElementById('tab-register').classList.remove('active');
+            document.getElementById('form-login').classList.remove('active');
+            document.getElementById('form-register').classList.remove('active');
+
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('form-' + tab).classList.add('active');
+        }
+
+        const API_URL = 'http://localhost:8080/api/clientes';
+
+        // LÓGICA DE INICIO DE SESIÓN
+        document.getElementById('btn-login').addEventListener('click', async () => {
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-pass').value;
+            const errorLabel = document.getElementById('login-error');
+            errorLabel.textContent = '';
+
+            if (!email || !password) {
+                errorLabel.textContent = 'Completa todos los campos.';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (res.ok) {
+                    const cliente = await res.json();
+                    localStorage.setItem('flics_cliente_web', JSON.stringify(cliente));
+                    alert(`¡Bienvenido de nuevo, ${cliente.nombre}!`);
+                    window.location.href = 'index.html'; // Regresa a la tienda para pagar
+                } else {
+                    errorLabel.textContent = 'Correo o contraseña incorrectos.';
+                }
+            } catch (error) {
+                errorLabel.textContent = 'Error al conectar con el servidor.';
+            }
+        });
+
+        // LÓGICA DE REGISTRO
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const nombre = document.getElementById('reg-nombre').value.trim();
+            const documento = document.getElementById('reg-dni').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+            const errorLabel = document.getElementById('reg-error');
+            errorLabel.textContent = '';
+
+            if (!nombre || !documento || !email || !password) {
+                errorLabel.textContent = 'Todos los campos son obligatorios.';
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/registro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, documento, email, password })
+                });
+
+                if (res.ok) {
+                    const nuevoCliente = await res.json();
+                    localStorage.setItem('flics_cliente_web', JSON.stringify(nuevoCliente));
+                    alert('¡Cuenta creada con éxito! Ya puedes realizar tus compras.');
+                    window.location.href = 'index.html';
+                } else {
+                    errorLabel.textContent = 'Hubo un problema. Es posible que el DNI o correo ya existan.';
+                }
+            } catch (error) {
+                errorLabel.textContent = 'Error al conectar con el servidor.';
+            }
+        });
+    </script>
+</body>
+</html>
