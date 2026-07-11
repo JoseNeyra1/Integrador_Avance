@@ -1,0 +1,10 @@
+# Variables de entorno reales (nunca subir)
+.env
+
+# IDE
+.idea/
+*.iml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
