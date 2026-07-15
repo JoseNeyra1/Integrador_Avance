@@ -1,0 +1,24 @@
+services:
+  - name: tiendaflics-backend
+    type: web
+    runtime: docker
+    dockerfilePath: ./tiendaflics-backend/Dockerfile
+    dockerContext: ./tiendaflics-backend
+    plan: free
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_MS
+        value: "28800000"
+      - key: CORS_ORIGINS
+        sync: false
