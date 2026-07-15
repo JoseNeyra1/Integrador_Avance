@@ -1,6 +1,8 @@
 package com.tiendaflics.tiendaflics_backend.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 @Entity
@@ -15,12 +17,16 @@ public class DetallePedido {
     @JoinColumn(name = "id_pedido")
     private Pedido pedido;
 
+    @NotNull(message = "El producto es obligatorio")
     @ManyToOne
     @JoinColumn(name = "id_producto")
     private Producto producto;
 
+    @NotNull(message = "La cantidad es obligatoria")
+    @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private Integer cantidad;
 
+    @NotNull(message = "El precio de compra es obligatorio")
     @Column(name = "precio_compra")
     private BigDecimal precioCompra;
 

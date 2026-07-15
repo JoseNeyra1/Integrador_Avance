@@ -706,6 +706,169 @@ h1, h2, h3, .logo {
 .toast { background: var(--secondary-color); color: white; padding: 12px 25px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); font-size: 0.9rem; animation: slideIn 0.3s ease; }
 @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
+/* ORDER CARDS ADMIN */
+.order-card-admin {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+}
+
+.order-card-admin:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+
+.order-card-header-admin {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.order-card-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.order-card-id {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--primary-color);
+}
+
+.order-card-date {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.order-card-total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--secondary-color);
+}
+
+.order-card-client {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.order-card-actions {
+    margin-top: 8px;
+}
+
+/* STEPPER */
+.stepper-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 10px 0;
+}
+
+.stepper-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.stepper-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.3s;
+}
+
+.stepper-step.completed .stepper-circle {
+    background: #22c55e;
+    color: white;
+}
+
+.stepper-step.active .stepper-circle {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.25);
+}
+
+.stepper-step.pending .stepper-circle {
+    background: #e2e8f0;
+    color: #94a3b8;
+}
+
+.stepper-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.stepper-step.completed .stepper-label { color: #16a34a; }
+.stepper-step.active .stepper-label { color: var(--primary-color); }
+.stepper-step.pending .stepper-label { color: #94a3b8; }
+
+.stepper-line {
+    width: 24px;
+    height: 2px;
+    background: #e2e8f0;
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+
+.stepper-step.completed + .stepper-line { background: #22c55e; }
+.stepper-step.active + .stepper-line { background: var(--primary-color); }
+
+.btn-avanzar {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--primary-color);
+    color: white;
+    transition: all 0.2s;
+}
+
+.btn-avanzar:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-cancelar-pedido {
+    padding: 8px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--accent-color);
+    color: white;
+    transition: all 0.2s;
+}
+
+.btn-cancelar-pedido:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+}
+
+/* ADMIN TIMELINE */
+.admin-timeline {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #e2e8f0;
+    margin-top: 8px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 768px) {
     .nav-links { display: none; }

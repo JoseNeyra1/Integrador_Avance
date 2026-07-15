@@ -24,6 +24,11 @@ public class Pedido {
     @Column(name = "comprobante_yape")
     private String comprobanteYape;
 
+    private Boolean delivery = false;
+
+    @Column(name = "costo_delivery", precision = 10, scale = 2)
+    private java.math.BigDecimal costoDelivery = java.math.BigDecimal.ZERO;
+
     @ManyToOne
     @JoinColumn(name = "id_cliente")
     private Cliente cliente;
@@ -73,6 +78,12 @@ public class Pedido {
     public void setComprobanteYape(String comprobanteYape) {
         this.comprobanteYape = comprobanteYape;
     }
+
+    public Boolean getDelivery() { return delivery; }
+    public void setDelivery(Boolean delivery) { this.delivery = delivery; }
+
+    public java.math.BigDecimal getCostoDelivery() { return costoDelivery; }
+    public void setCostoDelivery(java.math.BigDecimal costoDelivery) { this.costoDelivery = costoDelivery; }
 
     public Cliente getCliente() {
         return cliente;

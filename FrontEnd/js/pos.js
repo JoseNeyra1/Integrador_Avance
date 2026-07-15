@@ -1,20 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // 1. SEGURIDAD: Validar que sea VENDEDOR o ADMIN
     const usuarioString = localStorage.getItem('flics_usuario');
     if (!usuarioString) {
-        window.location.href = 'login.html';
+        window.location.href = 'login-personal.html';
         return;
     }
     
     const usuarioActual = JSON.parse(usuarioString);
     if (usuarioActual.rol !== 'VENDEDOR' && usuarioActual.rol !== 'ADMIN') {
         alert("Acceso denegado. Pantalla exclusiva para personal de caja.");
-        window.location.href = 'login.html';
+        window.location.href = 'login-personal.html';
         return;
     }
 
-    // Mostrar el usuario activo
     document.getElementById('pos-user-name').innerHTML = `<i class="fas fa-user-circle"></i> Caja: ${usuarioActual.idUsuario}`;
 
     document.getElementById('btn-logout').addEventListener('click', () => {
@@ -22,21 +20,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login-personal.html';
     });
 
-    // --- VARIABLES Y CONEXIÓN ---
-    const API_URL = 'http://localhost:8080/api';
     let catalogo = [];
-    let boleta = []; // Es como el carrito, pero para la tienda física
+    let boleta = [];
 
-    // 2. CARGAR PRODUCTOS
+    const Toast = Swal.mixin({
+        toast: true, position: 'bottom-end', showConfirmButton: false, timer: 2000, timerProgressBar: true
+    });
+
     async function cargarProductosPOS() {
         try {
-            const res = await fetch(`${API_URL}/productos`);
+            const res = await apiFetch('/productos');
             if (res.ok) {
                 catalogo = await res.json();
                 renderizarGrilla(catalogo);
             }
         } catch (error) {
-            alert("Error al conectar con la base de datos de productos.");
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo conectar con la base de datos.' });
         }
     }
 
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         grid.innerHTML = '';
 
         productosArray.forEach(prod => {
-            // Solo mostramos productos activos y con stock
             if (prod.stock > 0) {
                 const item = document.createElement('div');
                 item.className = 'pos-item';
@@ -54,14 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="pos-item-price">S/ ${prod.precioVenta.toFixed(2)}</div>
                     <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">Stock: ${prod.stock}</div>
                 `;
-                // Al hacer clic, se agrega a la boleta directamente
                 item.addEventListener('click', () => agregarABoleta(prod));
                 grid.appendChild(item);
             }
         });
     }
 
-    // 3. BUSCADOR EN TIEMPO REAL
     document.getElementById('pos-search').addEventListener('input', (e) => {
         const texto = e.target.value.toLowerCase();
         const filtrados = catalogo.filter(p => 
@@ -71,7 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderizarGrilla(filtrados);
     });
 
-    // 4. LÓGICA DE LA BOLETA
     function agregarABoleta(producto) {
         const itemExistente = boleta.find(i => i.idProducto === producto.idProducto);
         
@@ -79,7 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (itemExistente.cantidad < producto.stock) {
                 itemExistente.cantidad++;
             } else {
-                alert("Stock insuficiente para este producto.");
+                Toast.fire({ icon: 'warning', title: 'Stock insuficiente' });
+                return;
             }
         } else {
             boleta.push({
@@ -90,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
         actualizarTicketUI();
+        Toast.fire({ icon: 'success', title: `${producto.nombre} agregado` });
     }
 
     window.modificarCantidad = function(idProd, delta) {
@@ -97,24 +94,35 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!item) return;
 
         const productoBD = catalogo.find(p => p.idProducto === idProd);
-
         item.cantidad += delta;
 
         if (item.cantidad <= 0) {
             boleta = boleta.filter(i => i.idProducto !== idProd);
         } else if (item.cantidad > productoBD.stock) {
             item.cantidad = productoBD.stock;
-            alert("Has alcanzado el límite de stock de este producto.");
+            Toast.fire({ icon: 'warning', title: 'Stock máximo alcanzado' });
         }
         
         actualizarTicketUI();
     }
 
     window.limpiarBoleta = function() {
-        if(boleta.length > 0 && confirm("¿Está seguro de limpiar la boleta actual?")) {
-            boleta = [];
-            actualizarTicketUI();
-        }
+        if (boleta.length === 0) return;
+        Swal.fire({
+            title: '¿Cancelar venta?',
+            text: 'Los productos de la boleta se perderán.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'Volver',
+            confirmButtonColor: '#ef4444'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                boleta = [];
+                actualizarTicketUI();
+                Toast.fire({ icon: 'info', title: 'Venta cancelada' });
+            }
+        });
     }
 
     function actualizarTicketUI() {
@@ -150,22 +158,40 @@ document.addEventListener('DOMContentLoaded', () => {
         totalEl.textContent = `S/ ${total.toFixed(2)}`;
     }
 
-    // 5. ENVIAR VENTA A JAVA (Backend)
     window.procesarVenta = async function(idMetodoPago) {
         if (boleta.length === 0) {
-            alert("La boleta está vacía.");
+            Toast.fire({ icon: 'warning', title: 'La boleta está vacía' });
+            return;
+        }
+
+        if (!usuarioActual.idPersona) {
+            Swal.fire({
+                icon: 'error', title: 'Error de sesión',
+                text: 'No se encontró el ID del vendedor. Vuelve a iniciar sesión.'
+            });
             return;
         }
 
         const total = boleta.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        const metodoNombre = idMetodoPago === 1 ? 'Efectivo' : 'Yape';
 
-        // Estructura que espera tu VentaController
+        const result = await Swal.fire({
+            title: `¿Confirmar venta?`,
+            html: `Total: <b>S/ ${total.toFixed(2)}</b><br>Método: <b>${metodoNombre}</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cobrar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#22c55e'
+        });
+
+        if (!result.isConfirmed) return;
+
         const ventaData = {
             venta: {
                 total: total,
-                vendedor: { idPersona: usuarioActual.idPersona }, // El empleado que está logueado
-                metodoPago: { idMetodo: idMetodoPago } // 1 Efectivo, 2 Yape
-                // Nota: Cliente es opcional en la BD para ventas presenciales rápidas
+                vendedor: { idPersona: usuarioActual.idPersona },
+                metodoPago: { idMetodo: idMetodoPago }
             },
             detalles: boleta.map(item => ({
                 producto: { idProducto: item.idProducto },
@@ -176,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const res = await fetch(`${API_URL}/ventas`, {
+            const res = await apiFetch('/ventas', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(ventaData)
@@ -184,18 +210,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (res.ok) {
                 const ventaConfirmada = await res.json();
-                alert(`¡Venta #${ventaConfirmada.idVenta} registrada correctamente!`);
+                const pagoIcon = idMetodoPago === 1 ? '💵' : '📱';
+                document.getElementById('receipt-details').innerHTML = `
+                    <p style="font-size:2.5rem;margin:10px 0;">🧾</p>
+                    <p style="font-size:1.3rem;font-weight:bold;">Venta #${ventaConfirmada.idVenta}</p>
+                    <p style="font-size:1rem;color:var(--text-muted);">${new Date().toLocaleString()}</p>
+                    <p style="font-size:1.2rem;font-weight:bold;color:var(--primary-color);margin:10px 0;">S/ ${Number(ventaConfirmada.total).toFixed(2)}</p>
+                    <p>${pagoIcon} ${metodoNombre}</p>
+                    <p style="font-size:0.85rem;color:var(--text-muted);">Atendió: ${usuarioActual.idUsuario}</p>
+                `;
+                document.getElementById('receipt-modal').classList.add('show');
+
                 boleta = [];
                 actualizarTicketUI();
-                cargarProductosPOS(); // Recargamos para refrescar el stock físico
+                cargarProductosPOS();
             } else {
-                alert("Error al procesar la venta. Verifique la base de datos.");
+                const err = await res.text();
+                Swal.fire({ icon: 'error', title: 'Error', text: err || 'Error al procesar la venta' });
             }
         } catch (error) {
-            alert("Error de conexión con el servidor.");
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión con el servidor.' });
         }
     }
 
-    // Iniciar
+    document.getElementById('btn-new-sale')?.addEventListener('click', () => {
+        document.getElementById('receipt-modal').classList.remove('show');
+    });
+
+    document.querySelectorAll('.modal .close-modal, .modal .close').forEach(el => {
+        if (el) el.addEventListener('click', () => {
+            document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+        });
+    });
+
+    actualizarTicketUI();
     cargarProductosPOS();
 });

@@ -2,6 +2,7 @@ package com.tiendaflics.tiendaflics_backend.controllers;
 
 import com.tiendaflics.tiendaflics_backend.entities.Producto;
 import com.tiendaflics.tiendaflics_backend.services.ProductoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class ProductoController {
 
     // Guardar un nuevo producto
     @PostMapping
-    public Producto guardar(@RequestBody Producto producto) {
+    public Producto guardar(@Valid @RequestBody Producto producto) {
         return productoService.guardarProducto(producto);
     }
 
@@ -33,6 +34,27 @@ public class ProductoController {
     public ResponseEntity<Producto> buscarPorId(@PathVariable Integer id) {
         return productoService.obtenerPorId(id)
                 .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    // Actualizar un producto
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> actualizar(@PathVariable Integer id, @Valid @RequestBody Producto producto) {
+        return productoService.obtenerPorId(id)
+                .map(p -> {
+                    p.setNombre(producto.getNombre());
+                    p.setDescripcion(producto.getDescripcion());
+                    p.setPrecioVenta(producto.getPrecioVenta());
+                    p.setStock(producto.getStock());
+                    p.setStockMinimo(producto.getStockMinimo());
+                    p.setCodigoBarras(producto.getCodigoBarras());
+                    p.setImagenUrl(producto.getImagenUrl());
+                    p.setActivo(producto.getActivo());
+                    if (producto.getCategoria() != null) {
+                        p.setCategoria(producto.getCategoria());
+                    }
+                    return ResponseEntity.ok(productoService.guardarProducto(p));
+                })
                 .orElse(ResponseEntity.notFound().build());
     }
 

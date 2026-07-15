@@ -1,6 +1,7 @@
 package com.tiendaflics.tiendaflics_backend.entities;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "Categoria")
@@ -11,8 +12,11 @@ public class Categoria {
     @Column(name = "id_categoria")
     private Integer idCategoria;
 
+    @NotBlank(message = "El nombre es obligatorio")
     @Column(nullable = false, length = 50)
     private String nombre;
+
+    private Boolean activo = true;
 
     public Categoria() {}
 
@@ -20,4 +24,6 @@ public class Categoria {
     public void setIdCategoria(Integer idCategoria) { this.idCategoria = idCategoria; }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
+    public Boolean getActivo() { return activo; }
+    public void setActivo(Boolean activo) { this.activo = activo; }
 }

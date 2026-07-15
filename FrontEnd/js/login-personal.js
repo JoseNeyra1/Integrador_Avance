@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnIngresar.disabled = true;
 
             try {
-                const res = await fetch('http://localhost:8080/api/auth/login', {
+                const res = await fetch(`${API_BASE_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ idUsuario, password })

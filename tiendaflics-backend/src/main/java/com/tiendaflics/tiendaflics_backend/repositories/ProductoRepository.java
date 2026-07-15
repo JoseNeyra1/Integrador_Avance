@@ -14,4 +14,7 @@ public interface ProductoRepository extends JpaRepository<Producto, Integer> {
 
     // Método automático para el catálogo de la página web (solo productos activos y por categoría)
     List<Producto> findByCategoriaIdCategoriaAndActivoTrue(Integer idCategoria);
+
+    // Listado general: solo productos no eliminados lógicamente
+    List<Producto> findByActivoTrue();
 }

@@ -1,15 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // --- CONEXIÓN AL BACKEND DE SPRING BOOT ---
-    const API_URL = 'http://localhost:8080/api';
 
-    // Variables globales
     let products = [];
     let cart = JSON.parse(localStorage.getItem('flics_cart')) || []; 
+    let deliverySeleccionado = false;
 
     function saveCart() { localStorage.setItem('flics_cart', JSON.stringify(cart)); }
 
-    // --- CONFIGURACIÓN DE NOTIFICACIONES (SweetAlert2) ---
     const Toast = Swal.mixin({
         toast: true,
         position: 'bottom-end',
@@ -22,25 +18,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- VERIFICAR SESIÓN DEL CLIENTE EN LA INTERFAZ ---
     const btnNavLogin = document.getElementById('btn-nav-login');
     const clienteLogueado = localStorage.getItem('flics_cliente_web');
 
     if (clienteLogueado && btnNavLogin) {
         const cliente = JSON.parse(clienteLogueado);
         
-        // Cambiamos el texto del botón al nombre del cliente
         btnNavLogin.innerHTML = `<i class="fas fa-user-check"></i> Hola, ${cliente.nombre.split(' ')[0]}`;
         btnNavLogin.href = "#"; 
         btnNavLogin.classList.remove('btn-primary-outline');
         btnNavLogin.classList.add('btn-primary');
-        
-        // Creamos un botón de "Cerrar Sesión" al lado
+
+        const liHistorial = document.createElement('li');
+        liHistorial.innerHTML = `<a href="historial-pedidos.html" style="font-weight:600;color:var(--primary-color);"><i class="fas fa-box"></i> Mis Pedidos</a>`;
+        btnNavLogin.parentElement.parentElement.insertBefore(liHistorial, btnNavLogin.parentElement);
+
         const liSalir = document.createElement('li');
         liSalir.innerHTML = `<a href="#" id="btn-logout-cliente" style="color: var(--accent-color); font-weight: bold; margin-left: 10px; text-decoration: none;">Salir</a>`;
         btnNavLogin.parentElement.after(liSalir);
 
-        // Funcionalidad para cerrar sesión
         document.getElementById('btn-logout-cliente').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.removeItem('flics_cliente_web');
@@ -48,10 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 1. CARGAR PRODUCTOS DESDE MYSQL
     async function cargarProductosDesdeBackend() {
         try {
-            const respuesta = await fetch(`${API_URL}/productos`);
+            const respuesta = await apiFetch('/productos');
             if (respuesta.ok) {
                 const dataJava = await respuesta.json();
                 
@@ -60,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     name: p.nombre,
                     category: p.categoria ? p.categoria.nombre : "General",
                     price: p.precioVenta,
-                    image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600", 
+                    image: p.imagenUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600", 
                     badge: p.stock <= p.stockMinimo ? "¡Poco Stock!" : "",
                     stockReal: p.stock
                 }));
@@ -76,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- CATÁLOGO PÚBLICO ---
     const productsContainer = document.getElementById('products-container');
 
     function renderPublicProducts() {
@@ -120,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA DEL CARRITO ---
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
     const cartIcon = document.getElementById('cart-icon');
@@ -166,14 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function calcularSubtotalCarrito() {
+        return cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+    }
+
     function updateCartUi() {
         if (!cartItemsContainer) return;
         cartItemsContainer.innerHTML = '';
-        let total = 0;
+        let total = calcularSubtotalCarrito();
         let count = 0;
 
         cart.forEach(item => {
-            total += item.price * item.quantity;
             count += item.quantity;
 
             const div = document.createElement('div');
@@ -189,8 +185,36 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemsContainer.appendChild(div);
         });
 
+        const deliveryCosto = deliverySeleccionado ? 5.00 : 0;
+        const totalConDelivery = total + deliveryCosto;
+
+        let deliveryHtml = '';
+        if (deliverySeleccionado) {
+            deliveryHtml = `
+                <div class="cart-item" style="border-bottom: none; padding: 8px 0;">
+                    <div style="display:flex;justify-content:space-between;width:100%;">
+                        <span style="color:#16a34a;"><i class="fas fa-truck"></i> Delivery</span>
+                        <span style="color:#16a34a;">+ S/ 5.00</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        const deliveryLine = document.getElementById('delivery-line');
+        if (deliveryLine) deliveryLine.remove();
+
+        const totalDiv = document.createElement('div');
+        totalDiv.id = 'delivery-line';
+        totalDiv.innerHTML = deliveryHtml;
+        if (cartItemsContainer.lastChild) {
+            cartItemsContainer.appendChild(totalDiv);
+        } else {
+            cartItemsContainer.appendChild(totalDiv);
+        }
+
         if (cartCountEl) cartCountEl.textContent = count;
-        if (cartTotalPriceEl) cartTotalPriceEl.textContent = `S/ ${total.toFixed(2)}`;
+        if (cartTotalPriceEl) cartTotalPriceEl.textContent = `S/ ${totalConDelivery.toFixed(2)}`;
+        window._currentCartTotal = totalConDelivery;
 
         document.querySelectorAll('.btn-remove').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -202,7 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- CHECKOUT CON VALIDACIÓN DE USUARIO REGISTRADO ---
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', () => {
             if (cart.length === 0) { 
@@ -236,12 +259,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             toggleCart(false);
-            document.getElementById('payment-modal').classList.add('show');
+            document.getElementById('delivery-modal').classList.add('show');
         });
     }
 
     document.getElementById('close-payment')?.addEventListener('click', () => document.getElementById('payment-modal').classList.remove('show'));
     document.getElementById('close-yape')?.addEventListener('click', () => document.getElementById('yape-modal').classList.remove('show'));
+    document.getElementById('close-delivery')?.addEventListener('click', () => document.getElementById('delivery-modal').classList.remove('show'));
+
+    document.getElementById('confirm-delivery')?.addEventListener('click', () => {
+        const check = document.getElementById('delivery-check');
+        deliverySeleccionado = check.checked;
+        updateCartUi();
+        document.getElementById('delivery-modal').classList.remove('show');
+        document.getElementById('payment-modal').classList.add('show');
+    });
 
     document.getElementById('pay-cash')?.addEventListener('click', () => finalizarPedido('Efectivo'));
     document.getElementById('pay-yape')?.addEventListener('click', () => {
@@ -255,12 +287,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function finalizarPedido(metodo) {
         const clienteActual = JSON.parse(localStorage.getItem('flics_cliente_web'));
-        const total = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+        const subtotal = cart.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+        const costoDelivery = deliverySeleccionado ? 5.00 : 0;
+        const total = subtotal + costoDelivery;
         
         const pedidoData = {
             pedido: { 
                 estado: "Pendiente", 
                 total: total,
+                delivery: deliverySeleccionado,
+                costoDelivery: costoDelivery,
                 cliente: {
                     idPersona: clienteActual.idPersona 
                 }
@@ -273,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const respuesta = await fetch(`${API_URL}/pedidos`, {
+            const respuesta = await apiFetch('/pedidos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(pedidoData)
@@ -281,15 +317,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (respuesta.ok) {
                 const pedidoConfirmado = await respuesta.json();
-                
+                let htmlMsg = `Código de Orden: <b>FL-${pedidoConfirmado.idPedido}</b><br>Método de Pago: <b>${metodo}</b>`;
+                if (deliverySeleccionado) {
+                    htmlMsg += `<br><span style="color:#16a34a;"><i class="fas fa-truck"></i> Con Delivery (+S/ 5.00)</span>`;
+                }
+
                 Swal.fire({
                     icon: 'success',
                     title: '¡Pedido Confirmado!',
-                    html: `Código de Orden: <b>FL-${pedidoConfirmado.idPedido}</b><br>Método de Pago: <b>${metodo}</b>`,
+                    html: htmlMsg,
                     confirmButtonColor: '#22c55e'
                 });
                 
                 cart = [];
+                deliverySeleccionado = false;
                 saveCart();
                 updateCartUi();
                 cargarProductosDesdeBackend(); 
@@ -308,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 🚀 INICIO DEL SISTEMA
     updateCartUi();
     cargarProductosDesdeBackend();
 });

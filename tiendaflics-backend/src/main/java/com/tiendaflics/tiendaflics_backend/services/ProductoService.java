@@ -1,6 +1,7 @@
 package com.tiendaflics.tiendaflics_backend.services;
 
 import com.tiendaflics.tiendaflics_backend.entities.Producto;
+import com.tiendaflics.tiendaflics_backend.exceptions.RecursoNoEncontradoException;
 import com.tiendaflics.tiendaflics_backend.repositories.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +14,9 @@ public class ProductoService {
     @Autowired
     private ProductoRepository productoRepository;
 
-    // Obtener todos los productos activos
+    // Obtener todos los productos activos (los eliminados lógicamente no se listan)
     public List<Producto> obtenerTodosLosProductos() {
-        return productoRepository.findAll();
+        return productoRepository.findByActivoTrue();
     }
 
     // Buscar producto por ID
@@ -28,8 +29,11 @@ public class ProductoService {
         return productoRepository.save(producto);
     }
 
-    // Eliminar producto (Borrado lógico)
+    // Eliminar producto (Borrado lógico real: se marca inactivo, no se borra la fila)
     public void eliminarProducto(Integer id) {
-        productoRepository.deleteById(id);
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado"));
+        producto.setActivo(false);
+        productoRepository.save(producto);
     }
 }

@@ -4,11 +4,17 @@ import com.tiendaflics.tiendaflics_backend.entities.Cliente;
 import com.tiendaflics.tiendaflics_backend.entities.Persona;
 import com.tiendaflics.tiendaflics_backend.repositories.ClienteRepository;
 import com.tiendaflics.tiendaflics_backend.repositories.PersonaRepository;
+import com.tiendaflics.tiendaflics_backend.security.JwtService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -22,9 +28,15 @@ public class ClienteController {
     @Autowired
     private ClienteRepository clienteRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
+
     // 1. ENDPOINT DE REGISTRO
     @PostMapping("/registro")
-    public ResponseEntity<?> registrarCliente(@RequestBody RegistroRequest request) {
+    public ResponseEntity<?> registrarCliente(@Valid @RequestBody RegistroRequest request) {
         try {
             // Paso A: Guardar los datos básicos en la tabla Persona
             Persona nuevaPersona = new Persona();
@@ -37,24 +49,24 @@ public class ClienteController {
 
             // Paso B: Crear el perfil de Cliente usando el ID de la Persona recién creada
             Cliente nuevoCliente = new Cliente();
-            // Dependiendo de cómo mapeaste tu entidad Cliente, usas el ID o el objeto Persona
             nuevoCliente.setIdPersona(personaGuardada.getIdPersona());
             nuevoCliente.setPuntosLealtad(0);
-            nuevoCliente.setPassword(request.getPassword()); // Guardamos la contraseña
+            nuevoCliente.setPassword(passwordEncoder.encode(request.getPassword()));
             clienteRepository.save(nuevoCliente);
 
-            // Paso C: Devolver los datos al frontend para que inicie sesión automáticamente
-            LoginResponse response = new LoginResponse(personaGuardada.getIdPersona(), personaGuardada.getNombre(), personaGuardada.getEmail());
+            // Paso C: Devolver los datos + token al frontend para que inicie sesión automáticamente
+            String token = jwtService.generarToken(personaGuardada.getEmail(), "CLIENTE", personaGuardada.getIdPersona(), "CLIENTE");
+            LoginResponse response = new LoginResponse(personaGuardada.getIdPersona(), personaGuardada.getNombre(), personaGuardada.getEmail(), token);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error al registrar: Puede que el correo o DNI ya existan.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Error al registrar: Puede que el correo o DNI ya existan."));
         }
     }
 
     // 2. ENDPOINT DE INICIO DE SESIÓN
     @PostMapping("/login")
-    public ResponseEntity<?> iniciarSesion(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> iniciarSesion(@Valid @RequestBody LoginRequest request) {
         // Buscamos a la persona por su correo
         Optional<Persona> personaOpt = personaRepository.findByEmail(request.getEmail());
 
@@ -65,23 +77,29 @@ public class ClienteController {
 
             if (clienteOpt.isPresent()) {
                 Cliente cliente = clienteOpt.get();
-                // Validamos la contraseña
-                if (cliente.getPassword().equals(request.getPassword())) {
-                    LoginResponse response = new LoginResponse(persona.getIdPersona(), persona.getNombre(), persona.getEmail());
+                // Validamos la contraseña con BCrypt
+                if (passwordEncoder.matches(request.getPassword(), cliente.getPassword())) {
+                    String token = jwtService.generarToken(persona.getEmail(), "CLIENTE", persona.getIdPersona(), "CLIENTE");
+                    LoginResponse response = new LoginResponse(persona.getIdPersona(), persona.getNombre(), persona.getEmail(), token);
                     return ResponseEntity.ok(response);
                 }
             }
         }
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Correo o contraseña incorrectos");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Correo o contraseña incorrectos"));
     }
 
     // --- CLASES AUXILIARES (DTOs) PARA RECIBIR Y ENVIAR JSON ---
 
     public static class RegistroRequest {
+        @NotBlank(message = "El nombre es obligatorio")
         private String nombre;
+        @NotBlank(message = "El documento es obligatorio")
         private String documento;
+        @NotBlank(message = "El correo es obligatorio")
+        @Email(message = "El correo no tiene un formato válido")
         private String email;
+        @NotBlank(message = "La contraseña es obligatoria")
         private String password;
 
         public String getNombre() { return nombre; }
@@ -95,7 +113,9 @@ public class ClienteController {
     }
 
     public static class LoginRequest {
+        @NotBlank(message = "El correo es obligatorio")
         private String email;
+        @NotBlank(message = "La contraseña es obligatoria")
         private String password;
 
         public String getEmail() { return email; }
@@ -108,15 +128,18 @@ public class ClienteController {
         private Integer idPersona;
         private String nombre;
         private String email;
+        private String token;
 
-        public LoginResponse(Integer idPersona, String nombre, String email) {
+        public LoginResponse(Integer idPersona, String nombre, String email, String token) {
             this.idPersona = idPersona;
             this.nombre = nombre;
             this.email = email;
+            this.token = token;
         }
 
         public Integer getIdPersona() { return idPersona; }
         public String getNombre() { return nombre; }
         public String getEmail() { return email; }
+        public String getToken() { return token; }
     }
 }

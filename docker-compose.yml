@@ -1,0 +1,49 @@
+# Levanta TiendaFlics completo (MySQL + backend) con un solo comando:
+#   docker compose up -d
+# Copia tiendaflics-backend/.env.example a un archivo ".env" en esta misma carpeta
+# y ajusta los valores antes de levantar el stack.
+#
+# Despliegue gratuito sugerido (proyecto académico):
+#   - Render (Web Service, apunta al Dockerfile de tiendaflics-backend) para el backend.
+#   - Clever Cloud (addon MySQL free) o similar para la base de datos.
+#   Configura las mismas variables de entorno de abajo en el panel de cada proveedor
+#   (DB_HOST/DB_PORT apuntando al MySQL gestionado, JWT_SECRET propio, CORS_ORIGINS
+#   con la URL real del frontend desplegado).
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin123}
+      MYSQL_DATABASE: ${DB_NAME:-TiendaFlic_db}
+    ports:
+      - "3306:3306"
+    volumes:
+      - tiendaflics_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-admin123}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./tiendaflics-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-TiendaFlic_db}
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin123}
+      JWT_SECRET: ${JWT_SECRET:-cambia-este-secreto-en-produccion-por-uno-de-al-menos-32-caracteres}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-28800000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5500,http://127.0.0.1:5500}
+    ports:
+      - "8080:8080"
+
+volumes:
+  tiendaflics_mysql_data:
