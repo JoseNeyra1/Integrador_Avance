@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -73,5 +74,15 @@ class AuthControllerTest {
     void eliminarProductoSinTokenDevuelveNoAutenticado() throws Exception {
         mockMvc.perform(delete("/api/productos/1"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void preflightCorsSiempreEsPermitido() throws Exception {
+        // El navegador nunca manda credenciales en un preflight OPTIONS; si esto no
+        // devuelve 200, el frontend en otro dominio nunca puede llamar a la API.
+        mockMvc.perform(options("/api/pedidos")
+                        .header("Origin", "http://localhost:5500")
+                        .header("Access-Control-Request-Method", "GET"))
+                .andExpect(status().isOk());
     }
 }

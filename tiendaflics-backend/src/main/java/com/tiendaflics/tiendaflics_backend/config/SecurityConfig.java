@@ -42,6 +42,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(jsonAuthErrorHandlers)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Preflight CORS: el navegador nunca manda credenciales en un OPTIONS,
+                        // así que debe quedar siempre libre o el preflight falla con 401/403.
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // Endpoints públicos
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/clientes/registro", "/api/clientes/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias").permitAll()
