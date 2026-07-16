@@ -18,6 +18,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navLinks = document.querySelector('.nav-links');
+
+    if (mobileMenuBtn && navLinks) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Cerrar el menú al tocar un link (son anclas a la misma página)
+        navLinks.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenuBtn.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    }
+
     const btnNavLogin = document.getElementById('btn-nav-login');
     const clienteLogueado = localStorage.getItem('flics_cliente_web');
 
