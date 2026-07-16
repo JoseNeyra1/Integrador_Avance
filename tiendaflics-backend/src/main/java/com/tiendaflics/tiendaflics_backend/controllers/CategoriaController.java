@@ -41,6 +41,7 @@ public class CategoriaController {
         Categoria existente = categoriaRepository.findById(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Categoría no encontrada"));
         existente.setNombre(categoria.getNombre());
+        existente.setImagenUrl(categoria.getImagenUrl());
         return categoriaRepository.save(existente);
     }
 

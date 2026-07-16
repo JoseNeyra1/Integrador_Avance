@@ -49,14 +49,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoriasCache = await res.json();
                 container.innerHTML = categoriasCache.length === 0
                     ? '<p>No hay categorías registradas.</p>'
-                    : categoriasCache.map(c => `
+                    : categoriasCache.map(c => {
+                        const imgPreview = c.imagenUrl
+                            ? `<img src="${c.imagenUrl}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;margin-right:10px;" onerror="this.style.display='none'">`
+                            : '';
+                        return `
                         <div class="admin-item" style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px;margin-bottom:8px;">
-                            <div>
-                                <span style="font-weight:600;">${c.nombre}</span>
-                                <span style="font-size:0.85rem;color:var(--text-muted);margin-left:8px;">ID: ${c.idCategoria}</span>
+                            <div style="display:flex;align-items:center;">
+                                ${imgPreview}
+                                <div>
+                                    <span style="font-weight:600;">${c.nombre}</span>
+                                    <span style="font-size:0.85rem;color:var(--text-muted);margin-left:8px;">ID: ${c.idCategoria}</span>
+                                </div>
                             </div>
                             <div style="display:flex;gap:6px;">
-                                <button class="btn-editar-categoria" data-id="${c.idCategoria}" data-nombre="${c.nombre}" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
+                                <button class="btn-editar-categoria" data-id="${c.idCategoria}" data-nombre="${c.nombre}" data-imagen="${c.imagenUrl || ''}" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn-eliminar-categoria" data-id="${c.idCategoria}" style="background:none;border:1px solid #ddd;color:#dc2626;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
@@ -64,10 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </button>
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                    }).join('');
 
                 document.querySelectorAll('.btn-editar-categoria').forEach(btn => {
-                    btn.addEventListener('click', () => editarCategoria(parseInt(btn.dataset.id), btn.dataset.nombre));
+                    btn.addEventListener('click', () => editarCategoria(parseInt(btn.dataset.id), btn.dataset.nombre, btn.dataset.imagen));
                 });
                 document.querySelectorAll('.btn-eliminar-categoria').forEach(btn => {
                     btn.addEventListener('click', () => eliminarCategoria(parseInt(btn.dataset.id)));
@@ -78,22 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function editarCategoria(id, nombreActual) {
-        const { value: nombre } = await Swal.fire({
+    async function editarCategoria(id, nombreActual, imagenActual) {
+        const { value: formValues } = await Swal.fire({
             title: 'Editar categoría',
-            input: 'text',
-            inputValue: nombreActual,
+            html:
+                `<input id="swal-cat-nombre" class="swal2-input" placeholder="Nombre" value="${(nombreActual || '').replace(/"/g, '&quot;')}">` +
+                `<input id="swal-cat-imagen" class="swal2-input" placeholder="URL de imagen" value="${(imagenActual || '').replace(/"/g, '&quot;')}">`,
+            focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Guardar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => ({
+                nombre: document.getElementById('swal-cat-nombre').value.trim(),
+                imagenUrl: document.getElementById('swal-cat-imagen').value.trim()
+            })
         });
-        if (!nombre || !nombre.trim()) return;
+        if (!formValues || !formValues.nombre) return;
 
         try {
             const res = await apiFetch(`/categorias/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre: nombre.trim() })
+                body: JSON.stringify({ nombre: formValues.nombre, imagenUrl: formValues.imagenUrl || null })
             });
             if (res.ok) {
                 Swal.fire({ icon: 'success', title: 'Categoría actualizada', timer: 1500, showConfirmButton: false });
@@ -525,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('add-categoria-btn')?.addEventListener('click', async () => {
         const nombre = document.getElementById('new-cat-name').value.trim();
+        const imagenUrl = document.getElementById('new-cat-image').value.trim();
         if (!nombre) {
             Swal.fire({ icon: 'warning', title: 'Ingresa un nombre para la categoría' });
             return;
@@ -533,11 +548,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await apiFetch('/categorias', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nombre })
+                body: JSON.stringify({ nombre, imagenUrl: imagenUrl || null })
             });
             if (res.ok) {
                 Swal.fire({ icon: 'success', title: 'Categoría creada', timer: 1500, showConfirmButton: false });
                 document.getElementById('new-cat-name').value = '';
+                document.getElementById('new-cat-image').value = '';
                 cargarCategorias();
                 cargarCategoriasParaSelect();
             } else {

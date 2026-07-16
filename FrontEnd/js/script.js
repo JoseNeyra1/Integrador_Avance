@@ -89,6 +89,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    async function cargarCategoriasDesdeBackend() {
+        const container = document.getElementById('categories-container');
+        if (!container) return;
+
+        try {
+            const respuesta = await apiFetch('/categorias');
+            if (!respuesta.ok) throw new Error('No se pudo cargar categorías');
+            const categorias = await respuesta.json();
+
+            if (categorias.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="grid-column: 1/-1; text-align: center; padding: 20px;">No hay categorías registradas.</p>';
+                return;
+            }
+
+            container.innerHTML = categorias.map(cat => `
+                <div class="category-card">
+                    <img src="${cat.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600'}"
+                        alt="${cat.nombre}" class="category-img" loading="lazy">
+                    <div class="category-content">
+                        <h3>${cat.nombre}</h3>
+                        <a href="#productos" class="category-link">Ver más ➔</a>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error cargando categorías:', error);
+            container.innerHTML = '<p class="text-muted" style="grid-column: 1/-1; text-align: center; padding: 20px;">No se pudieron cargar las categorías.</p>';
+        }
+    }
+
     const productsContainer = document.getElementById('products-container');
 
     function renderPublicProducts() {
@@ -369,4 +399,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateCartUi();
     cargarProductosDesdeBackend();
+    cargarCategoriasDesdeBackend();
 });
