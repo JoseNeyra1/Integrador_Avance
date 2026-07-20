@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${pedido.comprobanteYape ? `
                         <div class="order-summary">
                             <span>Comprobante Yape</span>
-                            <span>${pedido.comprobanteYape}</span>
+                            <span>${escapeHtml(pedido.comprobanteYape)}</span>
                         </div>` : ''}
                         <div class="timeline-section">
                             <h4><i class="fas fa-clock"></i> Línea de Tiempo</h4>

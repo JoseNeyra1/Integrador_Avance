@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (clienteLogueado && btnNavLogin) {
         const cliente = JSON.parse(clienteLogueado);
         
-        btnNavLogin.innerHTML = `<i class="fas fa-user-check"></i> Hola, ${cliente.nombre.split(' ')[0]}`;
+        btnNavLogin.innerHTML = `<i class="fas fa-user-check"></i> Hola, ${escapeHtml(cliente.nombre.split(' ')[0])}`;
         btnNavLogin.href = "#"; 
         btnNavLogin.classList.remove('btn-primary-outline');
         btnNavLogin.classList.add('btn-primary');
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     name: p.nombre,
                     category: p.categoria ? p.categoria.nombre : "General",
                     price: p.precioVenta,
-                    image: p.imagenUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600", 
+                    image: p.imagenUrl || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600",
                     badge: p.stock <= p.stockMinimo ? "¡Poco Stock!" : "",
                     stockReal: p.stock
                 }));
@@ -105,10 +105,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             container.innerHTML = categorias.map(cat => `
                 <div class="category-card">
-                    <img src="${cat.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600'}"
-                        alt="${cat.nombre}" class="category-img" loading="lazy">
+                    <img src="${escapeHtml(cat.imagenUrl || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600')}"
+                        alt="${escapeHtml(cat.nombre)}" class="category-img" loading="lazy">
                     <div class="category-content">
-                        <h3>${cat.nombre}</h3>
+                        <h3>${escapeHtml(cat.nombre)}</h3>
                         <a href="#productos" class="category-link">Ver más ➔</a>
                     </div>
                 </div>
@@ -134,13 +134,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = document.createElement('div');
             card.classList.add('product-card');
             card.innerHTML = `
-                ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                ${product.badge ? `<span class="product-badge">${escapeHtml(product.badge)}</span>` : ''}
                 <div class="product-img-container">
-                    <img src="${product.image}" alt="${product.name}" class="product-img" loading="lazy">
+                    <img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" class="product-img" loading="lazy">
                 </div>
                 <div class="product-info">
-                    <span class="product-cat">${product.category}</span>
-                    <h3 class="product-title">${product.name}</h3>
+                    <span class="product-cat">${escapeHtml(product.category)}</span>
+                    <h3 class="product-title">${escapeHtml(product.name)}</h3>
                     <div class="product-meta">
                         <span class="product-price">S/ ${Number(product.price).toFixed(2)}</span>
                         <button class="btn-add-cart" data-id="${product.id}" ${product.stockReal <= 0 ? 'disabled' : ''}>
@@ -223,9 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.classList.add('cart-item');
             div.innerHTML = `
-                <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                <img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" class="cart-item-img">
                 <div class="cart-item-details">
-                    <div class="cart-item-title">${item.name}</div>
+                    <div class="cart-item-title">${escapeHtml(item.name)}</div>
                     <div class="cart-item-price">${item.quantity} x S/ ${Number(item.price).toFixed(2)}</div>
                 </div>
                 <button class="btn-remove" style="background:none; border:none; color:var(--accent-color); cursor:pointer;" data-id="${item.id}"><i class="fas fa-trash"></i></button>

@@ -8,6 +8,8 @@ import com.tiendaflics.tiendaflics_backend.security.JwtService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -92,14 +94,22 @@ public class ClienteController {
     // --- CLASES AUXILIARES (DTOs) PARA RECIBIR Y ENVIAR JSON ---
 
     public static class RegistroRequest {
+        // Se detectó en la auditoría de seguridad que este endpoint público aceptaba
+        // HTML/JS arbitrario como nombre (p. ej. "<img src=x onerror=...>"). Se restringe
+        // a caracteres propios de un nombre de persona.
         @NotBlank(message = "El nombre es obligatorio")
+        @Size(max = 100, message = "El nombre no puede superar los 100 caracteres")
+        @Pattern(regexp = "^[\\p{L} .'-]+$", message = "El nombre solo puede contener letras, espacios, puntos, apóstrofes y guiones")
         private String nombre;
         @NotBlank(message = "El documento es obligatorio")
+        @Size(max = 20, message = "El documento no puede superar los 20 caracteres")
         private String documento;
         @NotBlank(message = "El correo es obligatorio")
         @Email(message = "El correo no tiene un formato válido")
+        @Size(max = 100, message = "El correo no puede superar los 100 caracteres")
         private String email;
         @NotBlank(message = "La contraseña es obligatoria")
+        @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres")
         private String password;
 
         public String getNombre() { return nombre; }

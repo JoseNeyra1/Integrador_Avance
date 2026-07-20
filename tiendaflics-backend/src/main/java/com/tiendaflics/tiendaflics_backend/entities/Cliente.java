@@ -1,5 +1,6 @@
 package com.tiendaflics.tiendaflics_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -19,6 +20,9 @@ public class Cliente {
     @Column(name = "password")
     private String password;
 
+    // Nunca debe salir en una respuesta JSON, ni siquiera hasheada: se detectó expuesta
+    // en /api/pedidos (Cliente anidado) durante la auditoría de seguridad.
+    @JsonIgnore
     public String getPassword() {
         return password;
     }

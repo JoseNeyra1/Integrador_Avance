@@ -45,6 +45,10 @@ public class SecurityConfig {
                         // Preflight CORS: el navegador nunca manda credenciales en un OPTIONS,
                         // así que debe quedar siempre libre o el preflight falla con 401/403.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        // Health check público (lo consultan balanceadores/orquestadores sin credenciales);
+                        // el resto de Actuator (metrics, prometheus, env, etc.) queda solo para ADMIN.
+                        .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/health/**").permitAll()
+                        .requestMatchers("/actuator/**").hasRole("ADMIN")
                         // Endpoints públicos
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/clientes/registro", "/api/clientes/login").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categorias").permitAll()

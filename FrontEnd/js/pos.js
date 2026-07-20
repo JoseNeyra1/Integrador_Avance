@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    document.getElementById('pos-user-name').innerHTML = `<i class="fas fa-user-circle"></i> Caja: ${usuarioActual.idUsuario}`;
+    document.getElementById('pos-user-name').innerHTML = `<i class="fas fa-user-circle"></i> Caja: ${escapeHtml(usuarioActual.idUsuario)}`;
 
     document.getElementById('btn-logout').addEventListener('click', () => {
         localStorage.removeItem('flics_usuario');
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const item = document.createElement('div');
                 item.className = 'pos-item';
                 item.innerHTML = `
-                    <div class="pos-item-title">${prod.nombre}</div>
+                    <div class="pos-item-title">${escapeHtml(prod.nombre)}</div>
                     <div class="pos-item-price">S/ ${prod.precioVenta.toFixed(2)}</div>
                     <div style="font-size: 0.75rem; color: #64748b; margin-top: 5px;">Stock: ${prod.stock}</div>
                 `;
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             container.innerHTML += `
                 <div class="ticket-row">
-                    <div class="ticket-row-title">${item.nombre}</div>
+                    <div class="ticket-row-title">${escapeHtml(item.nombre)}</div>
                     <div class="ticket-row-qty">
                         <button class="btn-qty" onclick="modificarCantidad(${item.idProducto}, -1)">-</button>
                         <span>${item.cantidad}</span>
@@ -217,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <p style="font-size:1rem;color:var(--text-muted);">${new Date().toLocaleString()}</p>
                     <p style="font-size:1.2rem;font-weight:bold;color:var(--primary-color);margin:10px 0;">S/ ${Number(ventaConfirmada.total).toFixed(2)}</p>
                     <p>${pagoIcon} ${metodoNombre}</p>
-                    <p style="font-size:0.85rem;color:var(--text-muted);">Atendió: ${usuarioActual.idUsuario}</p>
+                    <p style="font-size:0.85rem;color:var(--text-muted);">Atendió: ${escapeHtml(usuarioActual.idUsuario)}</p>
                 `;
                 document.getElementById('receipt-modal').classList.add('show');
 

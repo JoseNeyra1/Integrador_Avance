@@ -1,3 +1,16 @@
+// Escapa texto antes de insertarlo con innerHTML. La API permite HTML/JS en campos de
+// texto libre (nombre de producto, de categoría, de cliente); sin esto, ese contenido se
+// ejecutaría en el navegador de quien lo vea (XSS almacenado detectado en la auditoría).
+function escapeHtml(valor) {
+    if (valor === null || valor === undefined) return '';
+    return String(valor)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 // Helper de fetch compartido: arma la URL con API_BASE_URL y agrega el token JWT
 // (de staff o de cliente, el que esté guardado) a la cabecera Authorization.
 function obtenerToken() {

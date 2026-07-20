@@ -2,6 +2,7 @@ package com.tiendaflics.tiendaflics_backend.entities;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "Categoria")
@@ -13,6 +14,7 @@ public class Categoria {
     private Integer idCategoria;
 
     @NotBlank(message = "El nombre es obligatorio")
+    @Size(max = 50, message = "El nombre no puede superar los 50 caracteres")
     @Column(nullable = false, length = 50)
     private String nombre;
 

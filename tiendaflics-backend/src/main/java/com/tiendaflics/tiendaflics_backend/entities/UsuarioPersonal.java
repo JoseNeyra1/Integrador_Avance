@@ -1,5 +1,6 @@
 package com.tiendaflics.tiendaflics_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -32,6 +33,9 @@ public class UsuarioPersonal extends Persona {
     public Rol getRol() { return rol; }
     public void setRol(Rol rol) { this.rol = rol; }
 
+    // Nunca debe salir en una respuesta JSON, ni siquiera hasheada: se detectó expuesta
+    // en /api/ventas (UsuarioPersonal anidado como "vendedor") durante la auditoría.
+    @JsonIgnore
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 

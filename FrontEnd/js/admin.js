@@ -51,19 +51,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? '<p>No hay categorías registradas.</p>'
                     : categoriasCache.map(c => {
                         const imgPreview = c.imagenUrl
-                            ? `<img src="${c.imagenUrl}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;margin-right:10px;" onerror="this.style.display='none'">`
+                            ? `<img src="${escapeHtml(c.imagenUrl)}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;margin-right:10px;" onerror="this.style.display='none'">`
                             : '';
                         return `
                         <div class="admin-item" style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px;margin-bottom:8px;">
                             <div style="display:flex;align-items:center;">
                                 ${imgPreview}
                                 <div>
-                                    <span style="font-weight:600;">${c.nombre}</span>
+                                    <span style="font-weight:600;">${escapeHtml(c.nombre)}</span>
                                     <span style="font-size:0.85rem;color:var(--text-muted);margin-left:8px;">ID: ${c.idCategoria}</span>
                                 </div>
                             </div>
                             <div style="display:flex;gap:6px;">
-                                <button class="btn-editar-categoria" data-id="${c.idCategoria}" data-nombre="${c.nombre}" data-imagen="${c.imagenUrl || ''}" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
+                                <button class="btn-editar-categoria" data-id="${c.idCategoria}" data-nombre="${escapeHtml(c.nombre)}" data-imagen="${escapeHtml(c.imagenUrl || '')}" style="background:none;border:1px solid #ddd;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn-eliminar-categoria" data-id="${c.idCategoria}" style="background:none;border:1px solid #ddd;color:#dc2626;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:0.8rem;">
@@ -90,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const { value: formValues } = await Swal.fire({
             title: 'Editar categoría',
             html:
-                `<input id="swal-cat-nombre" class="swal2-input" placeholder="Nombre" value="${(nombreActual || '').replace(/"/g, '&quot;')}">` +
-                `<input id="swal-cat-imagen" class="swal2-input" placeholder="URL de imagen" value="${(imagenActual || '').replace(/"/g, '&quot;')}">`,
+                `<input id="swal-cat-nombre" class="swal2-input" placeholder="Nombre" value="${escapeHtml(nombreActual || '')}">` +
+                `<input id="swal-cat-imagen" class="swal2-input" placeholder="URL de imagen" value="${escapeHtml(imagenActual || '')}">`,
             focusConfirm: false,
             showCancelButton: true,
             confirmButtonText: 'Guardar',
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const valActual = sel.value;
                     sel.innerHTML = '<option value="">Seleccionar...</option>';
                     categoriasCache.forEach(c => {
-                        sel.innerHTML += `<option value="${c.idCategoria}">${c.nombre}</option>`;
+                        sel.innerHTML += `<option value="${c.idCategoria}">${escapeHtml(c.nombre)}</option>`;
                     });
                     if (valActual) sel.value = valActual;
                 });
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 productosCache.forEach(product => {
                     const imgPreview = product.imagenUrl
-                        ? `<img src="${product.imagenUrl}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;margin-right:10px;" onerror="this.style.display='none'">`
+                        ? `<img src="${escapeHtml(product.imagenUrl)}" style="width:40px;height:40px;border-radius:6px;object-fit:cover;margin-right:10px;" onerror="this.style.display='none'">`
                         : '';
 
                     const div = document.createElement('div');
@@ -189,9 +189,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div style="display:flex;align-items:center;flex:2;">
                             ${imgPreview}
                             <div>
-                                <div style="font-weight:bold;">${product.nombre}</div>
+                                <div style="font-weight:bold;">${escapeHtml(product.nombre)}</div>
                                 <div style="font-size:0.85rem;color:#666;">
-                                    ${product.categoria ? product.categoria.nombre : 'N/A'} | Stock: ${product.stock}
+                                    ${product.categoria ? escapeHtml(product.categoria.nombre) : 'N/A'} | Stock: ${product.stock}
                                 </div>
                             </div>
                         </div>
