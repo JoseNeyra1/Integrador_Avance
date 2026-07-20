@@ -1,11 +1,13 @@
 package com.tiendaflics.tiendaflics_backend.services;
 
 import com.tiendaflics.tiendaflics_backend.entities.DetalleVenta;
+import com.tiendaflics.tiendaflics_backend.entities.MetodoPago;
 import com.tiendaflics.tiendaflics_backend.entities.Producto;
 import com.tiendaflics.tiendaflics_backend.entities.Venta;
 import com.tiendaflics.tiendaflics_backend.exceptions.RecursoNoEncontradoException;
 import com.tiendaflics.tiendaflics_backend.exceptions.ReglaDeNegocioException;
 import com.tiendaflics.tiendaflics_backend.repositories.DetalleVentaRepository;
+import com.tiendaflics.tiendaflics_backend.repositories.MetodoPagoRepository;
 import com.tiendaflics.tiendaflics_backend.repositories.ProductoRepository;
 import com.tiendaflics.tiendaflics_backend.repositories.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class VentaService {
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private MetodoPagoRepository metodoPagoRepository;
 
     // Obtener historial de ventas (Ideal para los reportes de caja)
     public List<Venta> obtenerTodas() {
@@ -50,6 +55,16 @@ public class VentaService {
                 throw new ReglaDeNegocioException("Stock insuficiente en tienda para: " + producto.getNombre());
             }
         }
+
+        // 1b. El "stub" de metodoPago que manda el cliente solo trae el id; hay que resolverlo
+        // contra la base real antes de guardar, si no la venta falla con un 500 crudo (FK
+        // inexistente) en vez de un error claro.
+        if (venta.getMetodoPago() == null || venta.getMetodoPago().getIdMetodo() == null) {
+            throw new ReglaDeNegocioException("Debes indicar un método de pago");
+        }
+        MetodoPago metodoPago = metodoPagoRepository.findById(venta.getMetodoPago().getIdMetodo())
+                .orElseThrow(() -> new RecursoNoEncontradoException("El método de pago seleccionado no existe"));
+        venta.setMetodoPago(metodoPago);
 
         // 2. Guardar el comprobante principal de la venta
         Venta ventaGuardada = ventaRepository.save(venta);

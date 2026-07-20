@@ -2,9 +2,11 @@ package com.tiendaflics.tiendaflics_backend.config;
 
 import com.tiendaflics.tiendaflics_backend.entities.Categoria;
 import com.tiendaflics.tiendaflics_backend.entities.Cliente;
+import com.tiendaflics.tiendaflics_backend.entities.MetodoPago;
 import com.tiendaflics.tiendaflics_backend.entities.UsuarioPersonal;
 import com.tiendaflics.tiendaflics_backend.repositories.CategoriaRepository;
 import com.tiendaflics.tiendaflics_backend.repositories.ClienteRepository;
+import com.tiendaflics.tiendaflics_backend.repositories.MetodoPagoRepository;
 import com.tiendaflics.tiendaflics_backend.repositories.UsuarioPersonalRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.regex.Pattern;
 
 /**
- * Crea datos mínimos de demostración (usuario ADMIN/VENDEDOR y categorías) la primera vez
+ * Crea datos mínimos de demostración (usuario ADMIN/VENDEDOR, categorías y métodos de pago) la primera vez
  * que la aplicación arranca contra una base de datos vacía (ej. un entorno nuevo desplegado).
  * También migra en caliente cualquier password que haya quedado en texto plano de antes de
  * introducir BCrypt (datos reales preexistentes), re-hasheándolo con el valor que ya tenía.
@@ -27,15 +29,18 @@ public class DataSeeder implements CommandLineRunner {
     private final UsuarioPersonalRepository usuarioPersonalRepository;
     private final ClienteRepository clienteRepository;
     private final CategoriaRepository categoriaRepository;
+    private final MetodoPagoRepository metodoPagoRepository;
     private final PasswordEncoder passwordEncoder;
 
     public DataSeeder(UsuarioPersonalRepository usuarioPersonalRepository,
                        ClienteRepository clienteRepository,
                        CategoriaRepository categoriaRepository,
+                       MetodoPagoRepository metodoPagoRepository,
                        PasswordEncoder passwordEncoder) {
         this.usuarioPersonalRepository = usuarioPersonalRepository;
         this.clienteRepository = clienteRepository;
         this.categoriaRepository = categoriaRepository;
+        this.metodoPagoRepository = metodoPagoRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -55,6 +60,22 @@ public class DataSeeder implements CommandLineRunner {
             snacks.setNombre("Snacks");
             categoriaRepository.save(snacks);
         }
+
+        // Metodo_Pago nunca quedo capturado en las migraciones de Flyway (se habia insertado
+        // a mano en la base de datos original); sin esto, POST /api/ventas falla con un 500
+        // (violacion de clave foranea) en cualquier base nueva. El orden importa: pos.js asume
+        // id 1 = Efectivo, id 2 = Yape.
+        if (metodoPagoRepository.count() == 0) {
+            crearMetodoPago("Efectivo");
+            crearMetodoPago("Yape");
+            crearMetodoPago("Plin");
+        }
+    }
+
+    private void crearMetodoPago(String nombre) {
+        MetodoPago metodo = new MetodoPago();
+        metodo.setNombre(nombre);
+        metodoPagoRepository.save(metodo);
     }
 
     private void migrarPasswordsPlanasABcrypt() {

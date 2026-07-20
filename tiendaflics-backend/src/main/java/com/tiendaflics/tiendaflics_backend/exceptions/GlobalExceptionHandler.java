@@ -1,5 +1,6 @@
 package com.tiendaflics.tiendaflics_backend.exceptions;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +43,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<Map<String, String>> handleTipoInvalido(MethodArgumentTypeMismatchException ex) {
         return ResponseEntity.badRequest().body(Map.of("error", "El valor de '" + ex.getName() + "' no tiene un formato válido"));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleIntegridadDatos(DataIntegrityViolationException ex) {
+        return ResponseEntity.badRequest().body(Map.of("error", "La operación viola una restricción de datos (referencia inexistente o valor duplicado)"));
     }
 
     @ExceptionHandler(OptimisticLockingFailureException.class)

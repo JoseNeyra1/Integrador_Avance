@@ -1,12 +1,17 @@
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:TiendaFlic_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    # useSSL=true: TiDB Cloud Serverless exige TLS en su endpoint publico; MySQL 8 local/Docker
+    # tambien acepta TLS (certificado autofirmado) por defecto, asi que el mismo valor sirve
+    # para ambos entornos. enabledTLSProtocols evita que un driver viejo intente TLSv1/1.1
+    # (deprecados y rechazados por TiDB Cloud).
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:TiendaFlic_db}?useSSL=true&enabledTLSProtocols=TLSv1.2,TLSv1.3&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:admin123}
     hikari:
-      # Muchos proveedores gratuitos de MySQL (ej. Clever Cloud DEV) limitan el usuario a
-      # pocas conexiones simultaneas; el default de HikariCP (10) se pasa de ese limite.
-      maximum-pool-size: ${DB_POOL_SIZE:3}
+      # TiDB Cloud Serverless permite hasta 400 conexiones concurrentes (antes: 3, limite del
+      # proveedor gratuito anterior que ya no existe). 10 es un default razonable para el
+      # tamaño de este proyecto; se puede subir mas via DB_POOL_SIZE si hace falta.
+      maximum-pool-size: ${DB_POOL_SIZE:10}
   jpa:
     hibernate:
       # Flyway es la única fuente de verdad del esquema; Hibernate solo valida que coincida.
