@@ -86,6 +86,34 @@
     <section id="productos" class="products">
         <div class="container">
             <h2 class="section-title">Productos Destacados</h2>
+
+            <div class="products-filters">
+                <div class="filter-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="filtro-busqueda" placeholder="Buscar productos...">
+                </div>
+                <div class="filter-controls">
+                    <div class="filter-price-group">
+                        <input type="number" id="filtro-precio-min" class="filter-select" placeholder="S/ mín" min="0" step="0.5">
+                        <span>–</span>
+                        <input type="number" id="filtro-precio-max" class="filter-select" placeholder="S/ máx" min="0" step="0.5">
+                    </div>
+                    <select id="filtro-orden" class="filter-select">
+                        <option value="relevancia">Ordenar por</option>
+                        <option value="precio-asc">Precio: menor a mayor</option>
+                        <option value="precio-desc">Precio: mayor a menor</option>
+                        <option value="nombre-asc">Nombre: A-Z</option>
+                    </select>
+                    <button id="filtro-limpiar" class="filter-clear" type="button"><i class="fas fa-times"></i> Limpiar</button>
+                </div>
+            </div>
+
+            <div id="categorias-chips" class="category-chips">
+                <button class="category-chip active" data-categoria="">Todas</button>
+            </div>
+
+            <p id="filtro-resultados-info" class="filter-results-info"></p>
+
             <div id="products-container" class="products-grid"></div>
         </div>
     </section>

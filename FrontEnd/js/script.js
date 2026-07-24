@@ -1,8 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     let products = [];
-    let cart = JSON.parse(localStorage.getItem('flics_cart')) || []; 
+    let cart = JSON.parse(localStorage.getItem('flics_cart')) || [];
     let deliverySeleccionado = false;
+
+    let filtros = { texto: '', categoria: '', precioMin: null, precioMax: null, orden: 'relevancia' };
 
     function saveCart() { localStorage.setItem('flics_cart', JSON.stringify(cart)); }
 
@@ -109,17 +111,67 @@ document.addEventListener('DOMContentLoaded', () => {
                         alt="${escapeHtml(cat.nombre)}" class="category-img" loading="lazy">
                     <div class="category-content">
                         <h3>${escapeHtml(cat.nombre)}</h3>
-                        <a href="#productos" class="category-link">Ver más ➔</a>
+                        <a href="#productos" class="category-link" data-categoria="${escapeHtml(cat.nombre)}">Ver más ➔</a>
                     </div>
                 </div>
             `).join('');
+
+            document.querySelectorAll('.category-link').forEach(link => {
+                link.addEventListener('click', () => seleccionarCategoria(link.dataset.categoria));
+            });
+
+            renderCategoryChips(categorias.map(c => c.nombre));
         } catch (error) {
             console.error('Error cargando categorías:', error);
             container.innerHTML = '<p class="text-muted" style="grid-column: 1/-1; text-align: center; padding: 20px;">No se pudieron cargar las categorías.</p>';
         }
     }
 
+    const chipsContainer = document.getElementById('categorias-chips');
+
+    function renderCategoryChips(nombresCategorias) {
+        if (!chipsContainer) return;
+        chipsContainer.innerHTML = '<button class="category-chip active" data-categoria="">Todas</button>' +
+            nombresCategorias.map(nombre => `<button class="category-chip" data-categoria="${escapeHtml(nombre)}">${escapeHtml(nombre)}</button>`).join('');
+
+        chipsContainer.querySelectorAll('.category-chip').forEach(chip => {
+            chip.addEventListener('click', () => seleccionarCategoria(chip.dataset.categoria));
+        });
+    }
+
+    function seleccionarCategoria(categoria) {
+        filtros.categoria = categoria || '';
+        if (chipsContainer) {
+            chipsContainer.querySelectorAll('.category-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.categoria === filtros.categoria);
+            });
+        }
+        document.getElementById('productos')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        renderPublicProducts();
+    }
+
     const productsContainer = document.getElementById('products-container');
+    const resultadosInfo = document.getElementById('filtro-resultados-info');
+
+    function normalizarTexto(texto) {
+        return texto.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
+    function obtenerProductosFiltrados() {
+        let resultado = products.filter(product => {
+            if (filtros.texto && !normalizarTexto(product.name).includes(normalizarTexto(filtros.texto))) return false;
+            if (filtros.categoria && product.category !== filtros.categoria) return false;
+            if (filtros.precioMin !== null && product.price < filtros.precioMin) return false;
+            if (filtros.precioMax !== null && product.price > filtros.precioMax) return false;
+            return true;
+        });
+
+        if (filtros.orden === 'precio-asc') resultado.sort((a, b) => a.price - b.price);
+        else if (filtros.orden === 'precio-desc') resultado.sort((a, b) => b.price - a.price);
+        else if (filtros.orden === 'nombre-asc') resultado.sort((a, b) => a.name.localeCompare(b.name));
+
+        return resultado;
+    }
 
     function renderPublicProducts() {
         if (!productsContainer) return;
@@ -127,10 +179,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (products.length === 0) {
             productsContainer.innerHTML = '<p class="text-muted" style="grid-column: 1/-1; text-align: center; padding: 40px;">No hay productos en la base de datos.</p>';
+            if (resultadosInfo) resultadosInfo.textContent = '';
             return;
         }
 
-        products.forEach(product => {
+        const productosFiltrados = obtenerProductosFiltrados();
+
+        if (resultadosInfo) {
+            const hayFiltrosActivos = filtros.texto || filtros.categoria || filtros.precioMin !== null || filtros.precioMax !== null;
+            resultadosInfo.textContent = hayFiltrosActivos
+                ? `${productosFiltrados.length} de ${products.length} productos`
+                : '';
+        }
+
+        if (productosFiltrados.length === 0) {
+            productsContainer.innerHTML = `
+                <div class="no-products-found">
+                    <i class="fas fa-search"></i>
+                    <h3>No se encontraron productos</h3>
+                    <p>Prueba con otra búsqueda o quita algunos filtros.</p>
+                </div>
+            `;
+            return;
+        }
+
+        productosFiltrados.forEach(product => {
             const card = document.createElement('div');
             card.classList.add('product-card');
             card.innerHTML = `
@@ -161,6 +234,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    const filtroBusqueda = document.getElementById('filtro-busqueda');
+    const filtroPrecioMin = document.getElementById('filtro-precio-min');
+    const filtroPrecioMax = document.getElementById('filtro-precio-max');
+    const filtroOrden = document.getElementById('filtro-orden');
+    const filtroLimpiar = document.getElementById('filtro-limpiar');
+
+    let debounceBusqueda;
+    filtroBusqueda?.addEventListener('input', () => {
+        clearTimeout(debounceBusqueda);
+        debounceBusqueda = setTimeout(() => {
+            filtros.texto = filtroBusqueda.value.trim();
+            renderPublicProducts();
+        }, 250);
+    });
+
+    filtroPrecioMin?.addEventListener('input', () => {
+        filtros.precioMin = filtroPrecioMin.value === '' ? null : Number(filtroPrecioMin.value);
+        renderPublicProducts();
+    });
+
+    filtroPrecioMax?.addEventListener('input', () => {
+        filtros.precioMax = filtroPrecioMax.value === '' ? null : Number(filtroPrecioMax.value);
+        renderPublicProducts();
+    });
+
+    filtroOrden?.addEventListener('change', () => {
+        filtros.orden = filtroOrden.value;
+        renderPublicProducts();
+    });
+
+    filtroLimpiar?.addEventListener('click', () => {
+        filtros = { texto: '', categoria: '', precioMin: null, precioMax: null, orden: 'relevancia' };
+        if (filtroBusqueda) filtroBusqueda.value = '';
+        if (filtroPrecioMin) filtroPrecioMin.value = '';
+        if (filtroPrecioMax) filtroPrecioMax.value = '';
+        if (filtroOrden) filtroOrden.value = 'relevancia';
+        chipsContainer?.querySelectorAll('.category-chip').forEach(chip => {
+            chip.classList.toggle('active', chip.dataset.categoria === '');
+        });
+        renderPublicProducts();
+    });
 
     const cartSidebar = document.getElementById('cart-sidebar');
     const cartOverlay = document.getElementById('cart-overlay');
