@@ -70,6 +70,10 @@ public class PedidoService {
         return historialEstadoRepository.findByPedidoIdPedidoOrderByFechaCambioAsc(idPedido);
     }
 
+    public List<DetallePedido> obtenerDetallesPorPedido(Integer idPedido) {
+        return detallePedidoRepository.findByPedidoIdPedido(idPedido);
+    }
+
     @Transactional
     public Pedido procesarNuevoPedido(Pedido pedido, List<DetallePedido> detalles) {
 

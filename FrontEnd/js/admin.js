@@ -8,8 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const usuarioActual = JSON.parse(usuarioString);
     if (usuarioActual.rol !== 'ADMIN') {
-        alert("Acceso denegado. No tienes privilegios de Administrador.");
-        window.location.href = 'login-personal.html';
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso denegado',
+            text: 'No tienes privilegios de Administrador.',
+            confirmButtonColor: '#dc2626'
+        }).then(() => {
+            window.location.href = 'login-personal.html';
+        });
         return;
     }
 
@@ -327,6 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
                 ${botonAvanzar}
                 ${botonCancelar}
+                <button class="btn-ver-productos" data-pedido="${idPedido}" style="background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:0.85rem;">
+                    <i class="fas fa-box"></i> Ver Productos
+                </button>
                 <button class="btn-ver-timeline" data-pedido="${idPedido}" style="background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:0.85rem;">
                     <i class="fas fa-clock"></i> Ver Timeline
                 </button>
@@ -370,6 +379,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="order-card-total">S/ ${Number(order.total).toFixed(2)}</div>
                         </div>
                         ${order.cliente ? `<div class="order-card-client">Cliente: ID ${order.cliente.idPersona}</div>` : ''}
+                        <div id="productos-${order.idPedido}" class="admin-products" style="display:none;">
+                            <div style="font-size:0.85rem;color:var(--text-muted);padding:4px 0;">Cargando productos...</div>
+                        </div>
                         <div id="timeline-${order.idPedido}" class="admin-timeline" style="display:none;">
                             <div style="font-size:0.85rem;color:var(--text-muted);padding:4px 0;">Cargando línea de tiempo...</div>
                         </div>
@@ -396,6 +408,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             cancelButtonText: 'Volver', confirmButtonColor: '#dc2626'
                         });
                         if (result.isConfirmed) await cambiarEstado(id, 'Cancelado');
+                    });
+                });
+
+                document.querySelectorAll('.btn-ver-productos').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = parseInt(btn.dataset.pedido);
+                        const prodDiv = document.getElementById(`productos-${id}`);
+                        if (prodDiv.style.display === 'none') {
+                            prodDiv.style.display = 'block';
+                            btn.innerHTML = '<i class="fas fa-box"></i> Ocultar Productos';
+                            cargarProductosAdmin(id);
+                        } else {
+                            prodDiv.style.display = 'none';
+                            btn.innerHTML = '<i class="fas fa-box"></i> Ver Productos';
+                        }
                     });
                 });
 
@@ -452,6 +479,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof Swal !== 'undefined') {
                 Swal.fire({ icon: 'error', title: 'Error', text: 'Error de conexión' });
             }
+        }
+    }
+
+    async function cargarProductosAdmin(idPedido) {
+        try {
+            const res = await apiFetch(`/pedidos/${idPedido}/detalles`);
+            if (!res.ok) return;
+            const detalles = await res.json();
+            const prodDiv = document.getElementById(`productos-${idPedido}`);
+            if (!prodDiv) return;
+            prodDiv.innerHTML = detalles.length === 0
+                ? '<div style="font-size:0.85rem;color:var(--text-muted);">Sin productos registrados.</div>'
+                : detalles.map(d => `
+                    <div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:0.85rem;border-bottom:1px dashed #f1f5f9;">
+                        <span>${escapeHtml(d.producto?.nombre || 'Producto')} <span style="color:var(--text-muted);">x${d.cantidad}</span></span>
+                        <span style="font-weight:600;white-space:nowrap;">S/ ${Number(d.subtotal).toFixed(2)}</span>
+                    </div>
+                `).join('');
+        } catch (error) {
+            console.error('Error al cargar productos del pedido:', error);
         }
     }
 

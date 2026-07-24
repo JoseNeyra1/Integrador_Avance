@@ -43,6 +43,19 @@ public class PedidoController {
         return ResponseEntity.ok(pedidoService.obtenerPedidosPorCliente(idCliente));
     }
 
+    @GetMapping("/{id}/detalles")
+    public ResponseEntity<?> obtenerDetalles(@PathVariable Integer id, Authentication authentication) {
+        AuthPrincipal principal = (AuthPrincipal) authentication.getPrincipal();
+        if ("CLIENTE".equals(principal.rol())) {
+            Pedido pedido = pedidoService.obtenerPorId(id);
+            if (pedido.getCliente() == null || !pedido.getCliente().getIdPersona().equals(principal.idPersona())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "No puedes ver los productos de otro cliente"));
+            }
+        }
+        List<DetallePedido> detalles = pedidoService.obtenerDetallesPorPedido(id);
+        return ResponseEntity.ok(detalles);
+    }
+
     @GetMapping("/{id}/historial")
     public ResponseEntity<?> obtenerHistorial(@PathVariable Integer id, Authentication authentication) {
         AuthPrincipal principal = (AuthPrincipal) authentication.getPrincipal();

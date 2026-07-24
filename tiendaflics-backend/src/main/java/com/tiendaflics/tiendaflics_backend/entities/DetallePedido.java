@@ -1,5 +1,6 @@
 package com.tiendaflics.tiendaflics_backend.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -42,6 +43,9 @@ public class DetallePedido {
         this.idDetalle = idDetalle;
     }
 
+    // Se omite en el JSON: el cliente ya sabe a qué pedido pertenece (lo pidió por id),
+    // y reincluir el Pedido completo (con su Cliente anidado) en cada línea es payload redundante.
+    @JsonIgnore
     public Pedido getPedido() {
         return pedido;
     }

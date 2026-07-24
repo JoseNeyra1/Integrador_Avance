@@ -111,6 +111,19 @@
             padding: 8px 0;
         }
         .order-items-list span { display: block; }
+        .order-products { padding: 4px 0; }
+        .order-product-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 6px 0;
+            font-size: 0.9rem;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+        .order-product-row:last-child { border-bottom: none; }
+        .order-product-name { color: var(--text-color); }
+        .order-product-qty { color: var(--text-muted); font-size: 0.85rem; }
+        .order-product-subtotal { font-weight: 600; color: var(--text-color); white-space: nowrap; }
         .delivery-badge {
             display: inline-block;
             background: #f0fdf4;

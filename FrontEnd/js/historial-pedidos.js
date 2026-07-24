@@ -77,6 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>${escapeHtml(pedido.comprobanteYape)}</span>
                         </div>` : ''}
                         <div class="timeline-section">
+                            <h4><i class="fas fa-box"></i> Productos</h4>
+                            <div class="order-products" id="productos-${pedido.idPedido}">
+                                <p style="font-size:0.85rem;color:var(--text-muted);">Cargando...</p>
+                            </div>
+                        </div>
+                        <div class="timeline-section">
                             <h4><i class="fas fa-clock"></i> Línea de Tiempo</h4>
                             <div class="timeline" id="timeline-${pedido.idPedido}">
                                 <p style="font-size:0.85rem;color:var(--text-muted);">Cargando...</p>
@@ -87,11 +93,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 container.appendChild(card);
 
+                cargarProductosPedido(pedido.idPedido);
                 cargarTimeline(pedido.idPedido);
             });
         } catch (error) {
             console.error('Error:', error);
             container.innerHTML = '<p style="text-align:center;padding:40px;color:red;">Error al cargar tus pedidos. Intenta de nuevo.</p>';
+        }
+    }
+
+    async function cargarProductosPedido(idPedido) {
+        try {
+            const res = await apiFetch(`/pedidos/${idPedido}/detalles`);
+            if (!res.ok) return;
+
+            const detalles = await res.json();
+            const productosContainer = document.getElementById(`productos-${idPedido}`);
+            if (!productosContainer) return;
+
+            if (detalles.length === 0) {
+                productosContainer.innerHTML = '<p style="font-size:0.85rem;color:var(--text-muted);">Sin productos registrados.</p>';
+                return;
+            }
+
+            productosContainer.innerHTML = detalles.map(d => `
+                <div class="order-product-row">
+                    <span class="order-product-name">${escapeHtml(d.producto?.nombre || 'Producto')} <span class="order-product-qty">x${d.cantidad}</span></span>
+                    <span class="order-product-subtotal">S/ ${Number(d.subtotal).toFixed(2)}</span>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Error al cargar productos del pedido:', error);
         }
     }
 
