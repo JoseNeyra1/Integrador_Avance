@@ -70,7 +70,13 @@ function manejarSesionInvalida() {
     if (teniaSesionStaff) {
         window.location.href = 'login-personal.html';
     } else {
-        alert('Tu sesión expiró. Vuelve a iniciar sesión para continuar.');
-        window.location.href = 'login-cliente.html';
+        Swal.fire({
+            icon: 'info',
+            title: 'Sesión expirada',
+            text: 'Vuelve a iniciar sesión para continuar.',
+            confirmButtonColor: '#00b4d8'
+        }).then(() => {
+            window.location.href = 'login-cliente.html';
+        });
     }
 }

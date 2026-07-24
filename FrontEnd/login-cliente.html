@@ -108,6 +108,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="js/config.js"></script>
     <script>
         // Lógica para cambiar entre pestañas
@@ -145,8 +146,14 @@
                 if (res.ok) {
                     const cliente = await res.json();
                     localStorage.setItem('flics_cliente_web', JSON.stringify(cliente));
-                    alert(`¡Bienvenido de nuevo, ${cliente.nombre}!`);
-                    window.location.href = 'index.html'; // Regresa a la tienda para pagar
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Bienvenido de nuevo!',
+                        text: `Hola, ${cliente.nombre}`,
+                        confirmButtonColor: '#22c55e'
+                    }).then(() => {
+                        window.location.href = 'index.html'; // Regresa a la tienda para pagar
+                    });
                 } else {
                     errorLabel.textContent = 'Correo o contraseña incorrectos.';
                 }
@@ -179,8 +186,14 @@
                 if (res.ok) {
                     const nuevoCliente = await res.json();
                     localStorage.setItem('flics_cliente_web', JSON.stringify(nuevoCliente));
-                    alert('¡Cuenta creada con éxito! Ya puedes realizar tus compras.');
-                    window.location.href = 'index.html';
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Cuenta creada con éxito!',
+                        text: 'Ya puedes realizar tus compras.',
+                        confirmButtonColor: '#22c55e'
+                    }).then(() => {
+                        window.location.href = 'index.html';
+                    });
                 } else {
                     errorLabel.textContent = 'Hubo un problema. Es posible que el DNI o correo ya existan.';
                 }

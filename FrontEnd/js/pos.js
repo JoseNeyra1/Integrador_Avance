@@ -8,8 +8,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const usuarioActual = JSON.parse(usuarioString);
     if (usuarioActual.rol !== 'VENDEDOR' && usuarioActual.rol !== 'ADMIN') {
-        alert("Acceso denegado. Pantalla exclusiva para personal de caja.");
-        window.location.href = 'login-personal.html';
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso denegado',
+            text: 'Pantalla exclusiva para personal de caja.',
+            confirmButtonColor: '#dc2626'
+        }).then(() => {
+            window.location.href = 'login-personal.html';
+        });
         return;
     }
 
