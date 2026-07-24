@@ -158,10 +158,19 @@
             <span class="close-modal" id="close-yape">&times;</span>
             <h2>Pago con Yape</h2>
             <div style="text-align: center; margin: 20px 0;">
-                <img src="img/yape-qr.png" alt="Código QR de pago Yape" style="max-width: 220px; width: 100%; border-radius: 12px; margin-bottom: 12px;">
+                <div class="yape-qr-wrap">
+                    <img src="img/yape-qr.png" alt="Código QR de pago Yape" style="max-width: 220px; width: 100%; border-radius: 12px; margin-bottom: 12px;">
+                    <div id="yape-amount-float" class="yape-amount-float">
+                        <div class="yape-amount-label">Monto a pagar</div>
+                        <div class="yape-amount-value" id="yape-amount-value">S/ 0.00</div>
+                    </div>
+                </div>
                 <p>Escanee o envíe el pago al número Yape corporativo:<br><strong style="font-size: 1.4rem; color: #742284;">936 029 607</strong></p>
             </div>
-            <button id="confirm-yape" class="btn-primary w-100">Ya Realicé el Pago</button>
+            <a id="whatsapp-evidence-btn" href="https://wa.me/51936029607" target="_blank" rel="noopener noreferrer" class="btn-whatsapp">
+                <i class="fab fa-whatsapp"></i> Envía evidencias aquí
+            </a>
+            <button id="confirm-yape" class="btn-primary w-100" style="margin-top: 10px;">Ya Realicé el Pago</button>
         </div>
     </div>
 

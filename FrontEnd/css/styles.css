@@ -917,3 +917,80 @@ h1, h2, h3, .logo {
     .charts-dashboard-grid { grid-template-columns: 1fr; }
     .cart-sidebar { width: 100%; right: -100%; }
 }
+
+/* YAPE PAYMENT MODAL */
+#yape-modal .modal-content { overflow: visible; }
+.yape-qr-wrap { position: relative; display: inline-block; }
+.yape-amount-float {
+    position: absolute;
+    top: 10px;
+    left: calc(100% + 24px);
+    width: 190px;
+    background: linear-gradient(135deg, #742284, #9c3fb0);
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(116, 34, 132, 0.35);
+    text-align: center;
+    animation: yapeFloat 2.6s ease-in-out infinite;
+}
+.yape-amount-float::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 24px;
+    border-width: 8px 10px 8px 0;
+    border-style: solid;
+    border-color: transparent #742284 transparent transparent;
+}
+.yape-amount-float .yape-amount-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+}
+.yape-amount-float .yape-amount-value {
+    font-size: 1.7rem;
+    font-weight: 800;
+    font-family: 'Outfit', sans-serif;
+    margin-top: 2px;
+}
+@keyframes yapeFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.btn-whatsapp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    background: #25D366;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.btn-whatsapp:hover { background: #1ebe5b; }
+.btn-whatsapp i { font-size: 1.2rem; }
+
+@media (max-width: 768px) {
+    .yape-amount-float {
+        position: static;
+        left: auto;
+        top: auto;
+        transform: none !important;
+        width: 100%;
+        margin: 16px 0 0;
+        animation: none;
+    }
+    .yape-amount-float::before { display: none; }
+}

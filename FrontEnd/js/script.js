@@ -327,6 +327,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('pay-yape')?.addEventListener('click', () => {
         document.getElementById('payment-modal').classList.remove('show');
         document.getElementById('yape-modal').classList.add('show');
+
+        const monto = (window._currentCartTotal || 0).toFixed(2);
+        const amountEl = document.getElementById('yape-amount-value');
+        if (amountEl) amountEl.textContent = `S/ ${monto}`;
+
+        const whatsappBtn = document.getElementById('whatsapp-evidence-btn');
+        if (whatsappBtn) {
+            const mensaje = encodeURIComponent(`Hola, les envío la evidencia de mi pago por Yape de S/ ${monto}.`);
+            whatsappBtn.href = `https://wa.me/51936029607?text=${mensaje}`;
+        }
     });
     document.getElementById('confirm-yape')?.addEventListener('click', () => {
         document.getElementById('yape-modal').classList.remove('show');
